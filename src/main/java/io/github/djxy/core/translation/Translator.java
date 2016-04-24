@@ -40,12 +40,11 @@ public class Translator {
         if(translations.containsKey(language))
             return translations.get(language).containsKey(code)?translations.get(language).get(code):"";
         else
-            return translations.get(TranslationService.DEFAULT_LANG).get(code);
+            return translations.get(TranslationService.DEFAULT_LANGUAGE).get(code);
     }
 
-    public Text translate(UUID playerUUID, String code, Map<String,Object> values){
-        String playerLang = TranslationService.getInstance().getPlayerLang(playerUUID);
-        String translation = getTranslation(playerLang, code);
+    public Text translate(String playerLanguage, String code, Map<String,Object> values){
+        String translation = getTranslation(playerLanguage, code);
 
         if(!translation.isEmpty()) {
             Text text = Text.of();
@@ -61,7 +60,7 @@ public class Translator {
 
                 if(var.equals("CLICK")){
                     Consumer task = values.containsKey("CLICK")? (Consumer) values.get("CLICK") :e -> {};
-                    text = text.concat(transformClick(getTranslation(playerLang, "CLICK_HERE"), task));
+                    text = text.concat(transformClick(getTranslation(playerLanguage, "CLICK_HERE"), task));
                 }
                 else {
                     String value = values.containsKey(var)?values.get(var).toString():"{"+var+"}";
@@ -77,6 +76,10 @@ public class Translator {
         }
         else
             return Text.of();
+    }
+
+    public Text translate(UUID playerUUID, String code, Map<String,Object> values){
+        return translate(TranslationService.getInstance().getPlayerLanguage(playerUUID), code, values);
     }
 
     public Text transformText(String text){

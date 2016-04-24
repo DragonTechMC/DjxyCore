@@ -10,11 +10,11 @@ import java.util.Map;
 /**
  * Created by Samuel on 2016-04-23.
  */
-public class LangTranslationsFile extends FileManager {
+public class TranslationsFile extends FileManager {
 
     private final Translator translator;
 
-    public LangTranslationsFile(Path folder, String name, Translator translator) {
+    public TranslationsFile(Path folder, String name, Translator translator) {
         super(folder, name);
         this.translator = translator;
     }

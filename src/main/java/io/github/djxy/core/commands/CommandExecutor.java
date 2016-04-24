@@ -4,9 +4,8 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.format.TextStyle;
-import org.spongepowered.api.text.format.TextStyles;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -14,10 +13,9 @@ import java.util.Map;
  */
 public abstract class CommandExecutor {
 
-    public static final TextColor INFO_COLOR = TextColors.YELLOW;
+    public static final HashMap<String,Object> EMPTY = new HashMap<>();
     public static final TextColor WARNING_COLOR = TextColors.RED;
     public static final TextColor RESET_COLOR = TextColors.RESET;
-    public static final TextStyle RESET_STYLE = TextStyles.RESET;
 
     private String permission;
 
