@@ -40,7 +40,7 @@ public class Translator {
         if(translations.containsKey(lang))
             return translations.get(lang).containsKey(code)?translations.get(lang).get(code):"";
         else
-            return "";
+            return translations.get(TranslationService.DEFAULT_LANG).get(code);
     }
 
     public Text translate(UUID playerUUID, String code, Map<String,Object> values){
