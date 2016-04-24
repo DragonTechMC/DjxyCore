@@ -18,27 +18,27 @@ public class Translator {
 
     private final ConcurrentHashMap<String, ConcurrentHashMap<String, String>> translations = new ConcurrentHashMap<>();//Code,Lang,Translation
 
-    public Map<String,String> getTranslations(String lang){
-        return new HashMap<>(translations.get(lang));
+    public Map<String,String> getTranslations(String language){
+        return new HashMap<>(translations.get(language));
     }
 
     /**
-     * @param lang The language(en_US,fr_CA,de_DE) http://www.oracle.com/technetwork/java/javase/javase7locales-334809.html
+     * @param language The language(en_US,fr_CA,de_DE) http://www.oracle.com/technetwork/java/javase/javase7locales-334809.html
      * @param code To retrieve the translation
      * @param translation The translation
      */
-    public void setTranslation(String lang, String code, String translation){
-        TranslationService.getInstance().addLang(lang);
+    public void setTranslation(String language, String code, String translation){
+        TranslationService.getInstance().addLanguage(language);
 
-        if(!translations.containsKey(lang))
-            translations.put(lang, new ConcurrentHashMap<>());
+        if(!translations.containsKey(language))
+            translations.put(language, new ConcurrentHashMap<>());
 
-        translations.get(lang).put(code, translation);
+        translations.get(language).put(code, translation);
     }
 
-    public String getTranslation(String lang, String code){
-        if(translations.containsKey(lang))
-            return translations.get(lang).containsKey(code)?translations.get(lang).get(code):"";
+    public String getTranslation(String language, String code){
+        if(translations.containsKey(language))
+            return translations.get(language).containsKey(code)?translations.get(language).get(code):"";
         else
             return translations.get(TranslationService.DEFAULT_LANG).get(code);
     }

@@ -20,10 +20,10 @@ public class TranslationService {
     }
 
     private final ConcurrentHashMap<UUID,String> playersLang = new ConcurrentHashMap<>();
-    private final CopyOnWriteArraySet<String> langs = new CopyOnWriteArraySet<>();
+    private final CopyOnWriteArraySet<String> languages = new CopyOnWriteArraySet<>();
 
     private TranslationService(){
-        langs.add(DEFAULT_LANG);
+        languages.add(DEFAULT_LANG);
     }
 
     public void setPlayerLang(UUID uuid, String lang){
@@ -34,16 +34,16 @@ public class TranslationService {
         return playersLang.containsKey(uuid)?playersLang.get(uuid): DEFAULT_LANG;
     }
 
-    public void addLang(String lang){
-        langs.add(lang);
+    public void addLanguage(String lang){
+        languages.add(lang);
     }
 
-    public List<String> getLangs() {
-        return new ArrayList<>(langs);
+    public List<String> getLanguages() {
+        return new ArrayList<>(languages);
     }
 
-    public boolean containLang(String lang){
-        return langs.contains(lang);
+    public boolean containLanguage(String lang){
+        return languages.contains(lang);
     }
 
 }

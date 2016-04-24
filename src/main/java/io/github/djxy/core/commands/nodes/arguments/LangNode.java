@@ -21,16 +21,16 @@ public class LangNode extends ArgumentNode {
 
     @Override
     public Object getValue(String arg) {
-        return TranslationService.getInstance().containLang(arg)?arg:null;
+        return TranslationService.getInstance().containLanguage(arg)?arg:null;
     }
 
     @Override
     public List<String> complete(String complete) {
         List<String> values = new ArrayList<>();
 
-        for(String lang : TranslationService.getInstance().getLangs())
-            if(lang.toLowerCase().startsWith(complete))
-                values.add(lang);
+        for(String language : TranslationService.getInstance().getLanguages())
+            if(language.toLowerCase().startsWith(complete))
+                values.add(language);
 
         return values;
     }
