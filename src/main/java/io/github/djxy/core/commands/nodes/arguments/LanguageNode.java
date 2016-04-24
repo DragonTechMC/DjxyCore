@@ -9,13 +9,13 @@ import java.util.List;
 /**
  * Created by Samuel on 2016-04-08.
  */
-public class LangNode extends ArgumentNode {
+public class LanguageNode extends ArgumentNode {
 
-    public LangNode(String alias, String name) {
+    public LanguageNode(String alias, String name) {
         super(alias, name);
     }
 
-    public LangNode(String alias) {
+    public LanguageNode(String alias) {
         super(alias);
     }
 
