@@ -2,6 +2,7 @@ package io.github.djxy.core;
 
 import com.google.inject.Inject;
 import io.github.djxy.core.commands.Command;
+import io.github.djxy.core.commands.executors.GetPlayerLanguage;
 import io.github.djxy.core.commands.executors.SetPlayerLanguage;
 import io.github.djxy.core.commands.nodes.ChoiceNode;
 import io.github.djxy.core.commands.nodes.Node;
@@ -21,7 +22,6 @@ import org.spongepowered.api.plugin.Plugin;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.HashMap;
 
 /**
  * Created by Samuel on 2016-04-23.
@@ -70,7 +70,7 @@ public class Main {
     public Node createCommandLanguage(){
         return new ChoiceNode("")
                 .addNode(new LanguageNode("set", "language")
-                        .setExecutor(new SetPlayerLanguage()));
+                        .setExecutor(new SetPlayerLanguage())).setExecutor(new GetPlayerLanguage());
     }
 
     @Listener
@@ -89,15 +89,10 @@ public class Main {
 
     @Listener
     public void onJoin(ClientConnectionEvent.Join event){
-        PlayerRepository.getInstance().setPlayerName(event.getTargetEntity().getUniqueId(), event.getTargetEntity().getName());
+        PlayerRepository.getInstance().setPlayerData(event.getTargetEntity().getUniqueId(), "name", event.getTargetEntity().getName());
 
         if (!TranslationService.getInstance().hasPlayerLanguage(event.getTargetEntity().getUniqueId()))
             TranslationService.getInstance().setPlayerLanguage(event.getTargetEntity().getUniqueId(), TranslationService.DEFAULT_LANGUAGE);
-
-        HashMap<String,Object> values = new HashMap<>();
-        values.put("playerName", event.getTargetEntity().getName());
-
-        event.getTargetEntity().sendMessage(translator.translate(event.getTargetEntity().getUniqueId(), "onJoin", values));
     }
 
 }
