@@ -27,11 +27,6 @@ public class PlayerRepository {
             players.put(uuid, new ConcurrentHashMap<>());
     }
 
-    public void setPlayerName(UUID uuid, String name){
-        players.get(uuid).put("name", name);
-        playersByName.put(name, uuid);
-    }
-
     public List<String> getPlayerKeys(UUID uuid){
         return new ArrayList<>(players.get(uuid).keySet());
     }
@@ -42,6 +37,9 @@ public class PlayerRepository {
 
     public void setPlayerData(UUID uuid, String key, Object value){
         players.get(uuid).put(key, value);
+
+        if(key.equals("name"))
+            playersByName.put((String) value, uuid);
     }
 
     public boolean hasPlayerData(UUID uuid, String key){
