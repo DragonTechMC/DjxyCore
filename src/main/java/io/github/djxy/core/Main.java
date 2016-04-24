@@ -7,6 +7,7 @@ import io.github.djxy.core.commands.executors.SetPlayerLanguage;
 import io.github.djxy.core.commands.nodes.ChoiceNode;
 import io.github.djxy.core.commands.nodes.Node;
 import io.github.djxy.core.commands.nodes.arguments.LanguageNode;
+import io.github.djxy.core.files.fileManagers.ConfigFile;
 import io.github.djxy.core.files.fileManagers.PlayerRepositoryFile;
 import io.github.djxy.core.files.fileManagers.TranslationsFile;
 import io.github.djxy.core.repositories.PlayerRepository;
@@ -41,9 +42,17 @@ public class Main {
 
     private Translator translator;
     private PlayerRepositoryFile playerRepositoryFile;
+    private ConfigFile configFile;
 
     @Listener
     public void onGamePreInitializationEvent(GamePreInitializationEvent event) {
+        configFile = new ConfigFile(path.getParent());
+        try {
+            configFile.load();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         playerRepositoryFile = new PlayerRepositoryFile(path.getParent());
         try {
             playerRepositoryFile.load();
@@ -75,6 +84,11 @@ public class Main {
 
     @Listener
     public void onGameStoppedServerEvent(GameStoppedServerEvent event) {
+        try {
+            configFile.save();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         try {
             playerRepositoryFile.save();
         } catch (Exception e) {

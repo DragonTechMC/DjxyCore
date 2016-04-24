@@ -14,7 +14,7 @@ public class TranslationService {
 
     private static final TranslationService instance = new TranslationService();
 
-    public static final String DEFAULT_LANGUAGE = "en_US";
+    public static String DEFAULT_LANGUAGE = "en_US";
 
     public static TranslationService getInstance() {
         return instance;
