@@ -28,6 +28,8 @@ public class Translator {
      * @param translation The translation
      */
     public void setTranslation(String lang, String code, String translation){
+        TranslationService.getInstance().addLang(lang);
+
         if(!translations.containsKey(lang))
             translations.put(lang, new ConcurrentHashMap<>());
 
