@@ -21,6 +21,6 @@ public class DefaultSetLanguage extends CommandExecutor {
     @Override
     public void execute(CommandSource source, Map<String, Object> values) throws CommandException {
         TranslationService.DEFAULT_LANGUAGE = (String) values.get("language");
-        source.sendMessage(Main.getTranslatorInstance().translate(source, "setDefaultLanguage", EMPTY));
+        source.sendMessage(Main.getTranslatorInstance().translate(TranslationService.DEFAULT_LANGUAGE, "setDefaultLanguage", EMPTY));
     }
 }
