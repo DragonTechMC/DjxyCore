@@ -12,9 +12,9 @@ import java.util.Map;
 /**
  * Created by Samuel on 2016-04-24.
  */
-public class DefaultSetLanguage extends CommandExecutor {
+public class DefaultSetLanguageExecutor extends CommandExecutor {
 
-    public DefaultSetLanguage() {
+    public DefaultSetLanguageExecutor() {
         setPermission(Permissions.DEFAULT_SET_LANGUAGE);
     }
 

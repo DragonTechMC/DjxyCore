@@ -2,21 +2,19 @@ package io.github.djxy.core.commands.executors;
 
 import io.github.djxy.core.Main;
 import io.github.djxy.core.commands.CommandExecutor;
+import io.github.djxy.core.translation.TranslationService;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.entity.living.player.Player;
 
 import java.util.Map;
 
 /**
  * Created by Samuel on 2016-04-24.
  */
-public class PlayerGetLanguage extends CommandExecutor {
+public class DefaultGetLanguageExecutor extends CommandExecutor {
 
     @Override
     public void execute(CommandSource source, Map<String, Object> values) throws CommandException {
-        if(source instanceof Player)
-            source.sendMessage(Main.getTranslatorInstance().translate(source, "getPlayerLanguage", EMPTY));
+        source.sendMessage(Main.getTranslatorInstance().translate(TranslationService.DEFAULT_LANGUAGE, "getDefaultLanguage", EMPTY));
     }
-
 }
