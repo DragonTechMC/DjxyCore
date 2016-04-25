@@ -1,9 +1,11 @@
 package io.github.djxy.core.commands.nodes;
 
+import io.github.djxy.core.Main;
 import io.github.djxy.core.commands.CommandExecutor;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,24 +32,24 @@ public abstract class Node {
     public void executeCommand(CommandSource source, String[] args) throws CommandException {
         CommandCalled commandCalled = new CommandCalled();
 
-        createCommandCalled(commandCalled, args, 0);
+        createCommandCalled(commandCalled, source, args, 0);
 
         if(commandCalled.executor != null) {
             if (commandCalled.executor.getPermission() == null || source.hasPermission(commandCalled.executor.getPermission()))
                 commandCalled.executor.execute(source, commandCalled.values);
             else
-                throw new CommandException(Text.of(CommandExecutor.WARNING_COLOR, "You don't the permission to do this command."));
+                throw new CommandException(Text.of(TextColors.RED).concat(Main.getTranslatorInstance().translate(source, "commandRequirePermission", CommandExecutor.EMPTY)));
         }
         else
-            throw new CommandException(Text.of(CommandExecutor.WARNING_COLOR, "This is not a command."));
+            throw new CommandException(Text.of(TextColors.RED).concat(Main.getTranslatorInstance().translate(source, "commandInvalid", CommandExecutor.EMPTY)));
     }
 
-    public void createCommandCalled(CommandCalled commandCalled, String[] args, int index) throws CommandException {
+    public void createCommandCalled(CommandCalled commandCalled, CommandSource source, String[] args, int index) throws CommandException {
         if(index < args.length){
             Node next = getNode(args[index]);
 
             if(next != null)
-                next.createCommandCalled(commandCalled, args, index+1);
+                next.createCommandCalled(commandCalled, source, args, index+1);
         }
         else {
             commandCalled.setExecutor(getExecutor());

@@ -1,8 +1,12 @@
 package io.github.djxy.core.commands.nodes;
 
-import io.github.djxy.core.commands.CommandExecutor;
+import io.github.djxy.core.Main;
 import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
+
+import java.util.HashMap;
 
 /**
  * Created by Samuel on 2016-04-09.
@@ -39,24 +43,42 @@ public abstract class ArgumentNode extends Node {
     }
 
     @Override
-    public void createCommandCalled(CommandCalled commandCalled, String[] args, int index) throws CommandException {
+    public void createCommandCalled(CommandCalled commandCalled, CommandSource source, String[] args, int index) throws CommandException {
         if(index+1 < args.length){
             Node next = getNode(args[index]);
             Object value = getValue(args[index]);
 
             if(value != null)
                 commandCalled.addValue(name, value);
-            else
-                throw new CommandException(Text.of(CommandExecutor.WARNING_COLOR, args[index], CommandExecutor.RESET_COLOR, " is not a valid value."));
+            else {
+                HashMap<String,Object> values = new HashMap<>();
+                values.put("value", args[index]);
+
+                throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandValueNotValid", values)));
+            }
 
             if(next != null)
-                next.createCommandCalled(commandCalled, args, index + 1);
+                next.createCommandCalled(commandCalled, source, args, index + 1);
         }
         else{
-            if(args.length > index)
-                commandCalled.addValue(name, getValue(args[index]));
-            else
-                throw new CommandException(Text.of(CommandExecutor.RESET_COLOR, "You have to set a value for ", CommandExecutor.WARNING_COLOR, alias, CommandExecutor.RESET_COLOR, "."));
+            if(args.length > index){
+                Object value = getValue(args[index]);
+
+                if(value != null)
+                    commandCalled.addValue(name, value);
+                else {
+                    HashMap<String,Object> values = new HashMap<>();
+                    values.put("value", args[index]);
+
+                    throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandValueNotValid", values)));
+                }
+            }
+            else{
+                HashMap<String,Object> values = new HashMap<>();
+                values.put("alias", alias);
+
+                throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandNotComplete", values)));
+            }
 
             commandCalled.setExecutor(getExecutor());
         }

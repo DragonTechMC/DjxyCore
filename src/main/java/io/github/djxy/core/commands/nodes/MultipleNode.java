@@ -1,6 +1,7 @@
 package io.github.djxy.core.commands.nodes;
 
 import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandSource;
 
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class MultipleNode extends Node {
     }
 
     @Override
-    public void createCommandCalled(CommandCalled commandCalled, String[] args, int index) throws CommandException {
+    public void createCommandCalled(CommandCalled commandCalled, CommandSource source, String[] args, int index) throws CommandException {
         String text = "";
 
         for(int i = index; i < args.length; i++)
