@@ -12,9 +12,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class TranslationService {
 
-    private static final TranslationService instance = new TranslationService();
-
     public static String DEFAULT_LANGUAGE = "en_US";
+    private static final TranslationService instance = new TranslationService();
 
     public static TranslationService getInstance() {
         return instance;
@@ -43,6 +42,7 @@ public class TranslationService {
     }
 
     public List<String> getLanguages() {
+        System.out.println(new ArrayList<>(languages));
         return new ArrayList<>(languages);
     }
 
