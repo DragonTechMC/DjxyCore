@@ -7,7 +7,6 @@ import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -18,9 +17,10 @@ import java.util.function.Consumer;
 public class Translator {
 
     private final ConcurrentHashMap<String, ConcurrentHashMap<String, String>> translations = new ConcurrentHashMap<>();//Code,Lang,Translation
+    private Text prefix = Text.of();
 
-    public Map<String,String> getTranslations(String language){
-        return new HashMap<>(translations.get(language));
+    public void setPrefix(Text prefix) {
+        this.prefix = prefix;
     }
 
     /**
@@ -45,6 +45,14 @@ public class Translator {
     }
 
     public Text translate(String language, String code, Map<String,Object> values){
+        return translate(language, code, values, true);
+    }
+
+    public Text translate(CommandSource source, String code, Map<String,Object> values){
+        return translate(source, code, values, true);
+    }
+
+    public Text translate(String language, String code, Map<String,Object> values, boolean displayPrefix){
         String translation = getTranslation(language, code);
 
         if(!translation.isEmpty()) {
@@ -73,17 +81,17 @@ public class Translator {
 
             text = text.concat(transformText(translation.substring(startIndex, translation.length())));
 
-            return text;
+            return displayPrefix?prefix.concat(text):text;
         }
         else
             return Text.of();
     }
 
-    public Text translate(CommandSource source, String code, Map<String,Object> values){
+    public Text translate(CommandSource source, String code, Map<String,Object> values, boolean displayPrefix){
         if(source instanceof Player)
-            return translate(TranslationService.getInstance().getPlayerLanguage(((Player) source).getUniqueId()), code, values);
+            return translate(TranslationService.getInstance().getPlayerLanguage(((Player) source).getUniqueId()), code, values, displayPrefix);
         else
-            return translate(TranslationService.DEFAULT_LANGUAGE, code, values);
+            return translate(TranslationService.DEFAULT_LANGUAGE, code, values, displayPrefix);
     }
 
     public Text transformText(String text){
