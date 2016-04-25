@@ -5,6 +5,7 @@ package io.github.djxy.core;
  */
 public class Permissions {
 
+    public static final String RELOAD_TRANSLATIONS =  "djxycore.commands.admin.reload.translations";
     public static final String DEFAULT_SET_LANGUAGE = "djxycore.commands.admin.set.default.language";
 
 }
