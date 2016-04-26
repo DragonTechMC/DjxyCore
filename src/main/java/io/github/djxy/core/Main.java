@@ -5,10 +5,11 @@ import io.github.djxy.core.commands.Command;
 import io.github.djxy.core.commands.executors.*;
 import io.github.djxy.core.commands.nodes.ChoiceNode;
 import io.github.djxy.core.commands.nodes.Node;
+import io.github.djxy.core.commands.nodes.arguments.FileManagerNode;
 import io.github.djxy.core.commands.nodes.arguments.LanguageNode;
+import io.github.djxy.core.files.FileManager;
 import io.github.djxy.core.files.fileManagers.ConfigFile;
 import io.github.djxy.core.files.fileManagers.PlayerRepositoryFile;
-import io.github.djxy.core.files.fileManagers.TranslationsFile;
 import io.github.djxy.core.repositories.PlayerRepository;
 import io.github.djxy.core.translation.TranslationService;
 import io.github.djxy.core.translation.Translator;
@@ -19,8 +20,8 @@ import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStoppedServerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
@@ -40,72 +41,24 @@ public class Main {
     @DefaultConfig(sharedRoot = false)
     private Path path;
 
-    private Translator translator;
+    private Translator translator = new Translator(TextSerializers.FORMATTING_CODE.deserialize("&f[&6Djxy&l&4Core&r&f] "));
     private PlayerRepositoryFile playerRepositoryFile;
     private ConfigFile configFile;
-    private ArrayList<TranslationsFile> translationsFiles;
+    private ArrayList<FileManager> translationsFiles;
 
     @Listener
     public void onGamePreInitializationEvent(GamePreInitializationEvent event) {
-        configFile = new ConfigFile(path.getParent());
-        try {
-            configFile.load();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        CoreUtil.loadFileManagers((configFile = new ConfigFile(path.getParent())), (playerRepositoryFile = new PlayerRepositoryFile(path.getParent())));
 
-        playerRepositoryFile = new PlayerRepositoryFile(path.getParent());
-        try {
-            playerRepositoryFile.load();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        Path languagesPath = path.getParent().resolve("languages");
-        File languagesFolder = languagesPath.toFile();
-        translator = new Translator();
-        translatorInstance = translator;
-        translationsFiles = new ArrayList<>();
-
-        for(File language : languagesFolder.listFiles()) {
-            try {
-                TranslationsFile translationsFile = new TranslationsFile(languagesPath, language.getName().substring(0, language.getName().indexOf('.')), translator);
-
-                translationsFile.load();
-                translationsFiles.add(translationsFile);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        translationsFiles = CoreUtil.loadTranslationFiles(path.getParent().resolve("languages"), (translatorInstance = translator));
 
         Sponge.getCommandManager().register(this, new Command(createCommandLanguage()), "language");
-    }
-
-    public Node createCommandLanguage(){
-        return new ChoiceNode("")
-                .setExecutor(new PlayerGetLanguageExecutor())
-                .addNode(new ChoiceNode("reload")
-                        .setExecutor(new ReloadTranslationsExecutor(translationsFiles)))
-                .addNode(new LanguageNode("set", "language")
-                        .setExecutor(new PlayerSetLanguageExecutor()))
-                .addNode(new ChoiceNode("default")
-                        .setExecutor(new DefaultGetLanguageExecutor())
-                        .addNode(new LanguageNode("set", "language")
-                                .setExecutor(new DefaultSetLanguageExecutor())));
+        Sponge.getCommandManager().register(this, new Command(createCommandTranslation()), "translation");
     }
 
     @Listener
     public void onGameStoppedServerEvent(GameStoppedServerEvent event) {
-        try {
-            configFile.save();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            playerRepositoryFile.save();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        CoreUtil.saveFileManagers(configFile, playerRepositoryFile);
     }
 
     @Listener
@@ -119,6 +72,25 @@ public class Main {
 
         if (!TranslationService.getInstance().hasPlayerLanguage(event.getTargetEntity().getUniqueId()))
             TranslationService.getInstance().setPlayerLanguage(event.getTargetEntity().getUniqueId(), TranslationService.DEFAULT_LANGUAGE);
+    }
+
+    public Node createCommandLanguage(){
+        return new ChoiceNode("")
+                .setExecutor(new PlayerGetLanguageExecutor())
+                .addNode(new LanguageNode("set", "language")
+                        .setExecutor(new PlayerSetLanguageExecutor()))
+                .addNode(new ChoiceNode("default")
+                        .setExecutor(new DefaultGetLanguageExecutor())
+                        .addNode(new LanguageNode("set", "language")
+                                .setExecutor(new DefaultSetLanguageExecutor())));
+    }
+
+    public Node createCommandTranslation(){
+        return new ChoiceNode("")
+                .addNode(new ChoiceNode("reload")
+                        .setExecutor(new ReloadFileManagersExecutor(translationsFiles))
+                        .addNode(new FileManagerNode("file", translationsFiles)
+                                .setExecutor(new ReloadFileManagerExecutor())));
     }
 
 }

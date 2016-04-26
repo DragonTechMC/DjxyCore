@@ -28,7 +28,7 @@ public class LongNode extends ArgumentNode {
 
     @Override
     protected List<String> complete(String complete) {
-        return EMPTY;
+        return EMPTY_LIST;
     }
 
 }

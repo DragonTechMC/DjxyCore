@@ -1,12 +1,11 @@
 package io.github.djxy.core.commands.nodes;
 
+import io.github.djxy.core.CoreUtil;
 import io.github.djxy.core.Main;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
-
-import java.util.HashMap;
 
 /**
  * Created by Samuel on 2016-04-09.
@@ -50,12 +49,8 @@ public abstract class ArgumentNode extends Node {
 
             if(value != null)
                 commandCalled.addValue(name, value);
-            else {
-                HashMap<String,Object> values = new HashMap<>();
-                values.put("value", args[index]);
-
-                throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandValueNotValid", values)));
-            }
+            else
+                throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandValueNotValid", CoreUtil.createMap("value", args[index]), false)));
 
             if(next != null)
                 next.createCommandCalled(commandCalled, source, args, index + 1);
@@ -66,19 +61,11 @@ public abstract class ArgumentNode extends Node {
 
                 if(value != null)
                     commandCalled.addValue(name, value);
-                else {
-                    HashMap<String,Object> values = new HashMap<>();
-                    values.put("value", args[index]);
-
-                    throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandValueNotValid", values)));
-                }
+                else
+                    throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandValueNotValid", CoreUtil.createMap("value", args[index]), false)));
             }
-            else{
-                HashMap<String,Object> values = new HashMap<>();
-                values.put("alias", alias);
-
-                throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandNotComplete", values)));
-            }
+            else
+                throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandNotComplete", CoreUtil.createMap("value", args[index]), false)));
 
             commandCalled.setExecutor(getExecutor());
         }

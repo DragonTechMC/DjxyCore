@@ -33,12 +33,12 @@ public class MultipleNode extends Node {
 
     @Override
     protected List<String> complete(String complete) {
-        return EMPTY;
+        return EMPTY_LIST;
     }
 
     @Override
     public List<String> getSuggestion(String[] args, int index){
-        return EMPTY;
+        return EMPTY_LIST;
     }
 
     @Override

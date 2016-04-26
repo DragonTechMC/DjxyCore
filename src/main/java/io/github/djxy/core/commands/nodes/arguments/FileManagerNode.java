@@ -21,7 +21,21 @@ public class FileManagerNode extends ArgumentNode {
             this.fileManagers.put(fileManager.getName(), fileManager);
     }
 
+    public FileManagerNode(String alias, String name, List<FileManager> fileManagers) {
+        super(alias, name);
+
+        for(FileManager fileManager : fileManagers)
+            this.fileManagers.put(fileManager.getName(), fileManager);
+    }
+
     public FileManagerNode(String alias, FileManager... fileManagers) {
+        super(alias);
+
+        for(FileManager fileManager : fileManagers)
+            this.fileManagers.put(fileManager.getName(), fileManager);
+    }
+
+    public FileManagerNode(String alias, List<FileManager> fileManagers) {
         super(alias);
 
         for(FileManager fileManager : fileManagers)

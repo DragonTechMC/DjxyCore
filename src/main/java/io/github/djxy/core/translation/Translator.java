@@ -19,6 +19,13 @@ public class Translator {
     private final ConcurrentHashMap<String, ConcurrentHashMap<String, String>> translations = new ConcurrentHashMap<>();//Code,Lang,Translation
     private Text prefix = Text.of();
 
+    public Translator() {
+    }
+
+    public Translator(Text prefix) {
+        this.prefix = prefix;
+    }
+
     public void setPrefix(Text prefix) {
         this.prefix = prefix;
     }

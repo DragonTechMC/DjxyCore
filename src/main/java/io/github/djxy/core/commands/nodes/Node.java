@@ -10,13 +10,15 @@ import org.spongepowered.api.text.format.TextColors;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Samuel on 2016-04-09.
  */
 public abstract class Node {
 
-    protected static final List<String> EMPTY = new ArrayList<>();
+    protected static final List<String> EMPTY_LIST = new ArrayList<>();
+    protected static final Map<String,Object> EMPTY_MAP = new HashMap<>();
 
     protected final String alias;
     private CommandExecutor executor;
@@ -38,10 +40,10 @@ public abstract class Node {
             if (commandCalled.executor.getPermission() == null || source.hasPermission(commandCalled.executor.getPermission()))
                 commandCalled.executor.execute(source, commandCalled.values);
             else
-                throw new CommandException(Text.of(TextColors.RED).concat(Main.getTranslatorInstance().translate(source, "commandRequirePermission", CommandExecutor.EMPTY)));
+                throw new CommandException(Text.of(TextColors.RED).concat(Main.getTranslatorInstance().translate(source, "commandRequirePermission", EMPTY_MAP, false)));
         }
         else
-            throw new CommandException(Text.of(TextColors.RED).concat(Main.getTranslatorInstance().translate(source, "commandInvalid", CommandExecutor.EMPTY)));
+            throw new CommandException(Text.of(TextColors.RED).concat(Main.getTranslatorInstance().translate(source, "commandInvalid", EMPTY_MAP, false)));
     }
 
     public void createCommandCalled(CommandCalled commandCalled, CommandSource source, String[] args, int index) throws CommandException {
@@ -79,7 +81,7 @@ public abstract class Node {
             if(next != null)
                 return next.getSuggestion(args, index+1);
             else
-                return EMPTY;
+                return EMPTY_LIST;
         }
         else
             return complete(args[index].toLowerCase());
