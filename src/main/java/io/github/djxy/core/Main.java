@@ -19,8 +19,6 @@ import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStoppedServerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.TextColors;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -118,8 +116,6 @@ public class Main {
     @Listener
     public void onJoin(ClientConnectionEvent.Join event){
         PlayerRepository.getInstance().setPlayerData(event.getTargetEntity().getUniqueId(), "name", event.getTargetEntity().getName());
-
-        event.getTargetEntity().sendMessage(Text.of(TextColors.RED).concat(Text.of("Allo sa va bien!")));
 
         if (!TranslationService.getInstance().hasPlayerLanguage(event.getTargetEntity().getUniqueId()))
             TranslationService.getInstance().setPlayerLanguage(event.getTargetEntity().getUniqueId(), TranslationService.DEFAULT_LANGUAGE);
