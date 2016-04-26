@@ -16,7 +16,7 @@ public class PlayerGetLanguageExecutor extends CommandExecutor {
     @Override
     public void execute(CommandSource source, Map<String, Object> values) throws CommandException {
         if(source instanceof Player)
-            source.sendMessage(Main.getTranslatorInstance().translate(source, "getPlayerLanguage", EMPTY, false));
+            source.sendMessage(Main.getTranslatorInstance().translate(source, "getPlayerLanguage", EMPTY));
     }
 
 }

@@ -18,7 +18,7 @@ public class PlayerSetLanguageExecutor extends CommandExecutor {
     public void execute(CommandSource source, Map<String, Object> values) throws CommandException {
         if(source instanceof Player){
             TranslationService.getInstance().setPlayerLanguage(((Player) source).getUniqueId(), (String) values.get("language"));
-            source.sendMessage(Main.getTranslatorInstance().translate(source, "setPlayerLanguage", EMPTY, false));
+            source.sendMessage(Main.getTranslatorInstance().translate(source, "setPlayerLanguage", EMPTY));
         }
     }
 

@@ -24,7 +24,7 @@ public class ReloadTranslationsExecutor extends CommandExecutor {
 
     @Override
     public void execute(CommandSource source, Map<String, Object> values) throws CommandException {
-        source.sendMessage(Main.getTranslatorInstance().translate(source, "reloadTranslationFiles", EMPTY, false));
+        source.sendMessage(Main.getTranslatorInstance().translate(source, "reloadTranslationFiles", EMPTY));
 
         for(TranslationsFile translationsFile : translationsFiles) {
             try {

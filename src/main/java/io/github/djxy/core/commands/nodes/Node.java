@@ -38,10 +38,10 @@ public abstract class Node {
             if (commandCalled.executor.getPermission() == null || source.hasPermission(commandCalled.executor.getPermission()))
                 commandCalled.executor.execute(source, commandCalled.values);
             else
-                throw new CommandException(Text.of(TextColors.RED).concat(Main.getTranslatorInstance().translate(source, "commandRequirePermission", CommandExecutor.EMPTY, false)));
+                throw new CommandException(Text.of(TextColors.RED).concat(Main.getTranslatorInstance().translate(source, "commandRequirePermission", CommandExecutor.EMPTY)));
         }
         else
-            throw new CommandException(Text.of(TextColors.RED).concat(Main.getTranslatorInstance().translate(source, "commandInvalid", CommandExecutor.EMPTY, false)));
+            throw new CommandException(Text.of(TextColors.RED).concat(Main.getTranslatorInstance().translate(source, "commandInvalid", CommandExecutor.EMPTY)));
     }
 
     public void createCommandCalled(CommandCalled commandCalled, CommandSource source, String[] args, int index) throws CommandException {

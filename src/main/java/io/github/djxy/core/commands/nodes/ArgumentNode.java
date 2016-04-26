@@ -54,7 +54,7 @@ public abstract class ArgumentNode extends Node {
                 HashMap<String,Object> values = new HashMap<>();
                 values.put("value", args[index]);
 
-                throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandValueNotValid", values, false)));
+                throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandValueNotValid", values)));
             }
 
             if(next != null)
@@ -70,14 +70,14 @@ public abstract class ArgumentNode extends Node {
                     HashMap<String,Object> values = new HashMap<>();
                     values.put("value", args[index]);
 
-                    throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandValueNotValid", values, false)));
+                    throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandValueNotValid", values)));
                 }
             }
             else{
                 HashMap<String,Object> values = new HashMap<>();
                 values.put("alias", alias);
 
-                throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandNotComplete", values, false)));
+                throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandNotComplete", values)));
             }
 
             commandCalled.setExecutor(getExecutor());
