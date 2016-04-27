@@ -3,13 +3,13 @@ package io.github.djxy.core.translation;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.action.TextAction;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 /**
  * Created by Samuel on 2016-04-21.
@@ -74,9 +74,9 @@ public class Translator {
 
                 text = text.concat(transformText(translation.substring(startIndex, index)));
 
-                if(var.equals("CLICK")){
-                    Consumer task = values.containsKey("CLICK")? (Consumer) values.get("CLICK") :e -> {};
-                    text = text.concat(transformClick(getTranslation(language, "CLICK_HERE"), task));
+                if(var.startsWith("click")){
+                    TextAction action = values.containsKey(var)? (TextAction) values.get(var) :TextActions.executeCallback(e->{});
+                    text = text.concat(transformClick(getTranslation(language, "clickHere"), action));
                 }
                 else {
                     String value = values.containsKey(var)?values.get(var).toString():"{"+var+"}";
@@ -109,8 +109,8 @@ public class Translator {
         return Text.of(TextColors.YELLOW, text, TextColors.RESET);
     }
 
-    public Text transformClick(String text, Consumer task){
-        return Text.of(TextColors.RED, TextStyles.UNDERLINE, TextActions.executeCallback(task), text, TextColors.RESET, TextStyles.UNDERLINE);
+    public Text transformClick(String text, TextAction action){
+        return Text.of(TextColors.RED, TextStyles.UNDERLINE, action, text, TextColors.RESET, TextStyles.UNDERLINE);
     }
 
 }
