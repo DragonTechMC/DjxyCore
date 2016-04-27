@@ -50,7 +50,7 @@ public class Main {
     public void onGamePreInitializationEvent(GamePreInitializationEvent event) {
         CoreUtil.loadFileManagers((configFile = new ConfigFile(path.getParent())), (playerRepositoryFile = new PlayerRepositoryFile(path.getParent())));
 
-        translationsFiles = CoreUtil.loadTranslationFiles(path.getParent().resolve("languages"), (translatorInstance = translator));
+        translationsFiles = CoreUtil.loadTranslationFiles(path.getParent().resolve("translations"), (translatorInstance = translator));
 
         Sponge.getCommandManager().register(this, new Command(createCommandLanguage()), "language");
         Sponge.getCommandManager().register(this, new Command(createCommandTranslation()), "translation");
