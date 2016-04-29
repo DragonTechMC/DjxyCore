@@ -1,7 +1,7 @@
 package io.github.djxy.core.commands.executors;
 
 import io.github.djxy.core.CoreUtil;
-import io.github.djxy.core.Main;
+import io.github.djxy.core.CoreMain;
 import io.github.djxy.core.Permissions;
 import io.github.djxy.core.commands.CommandExecutor;
 import io.github.djxy.core.files.FileFormat;
@@ -24,7 +24,7 @@ public class FileSetFormatExecutor extends CommandExecutor {
         FileManager fileManager = (FileManager) values.get("file");
 
         FileFormat format = (FileFormat) values.get("format");
-        source.sendMessage(Main.getTranslatorInstance().translate(source, "setFileFormat", CoreUtil.createMap("file", fileManager.getName(), "format", format.name())));
+        source.sendMessage(CoreMain.getTranslatorInstance().translate(source, "setFileFormat", CoreUtil.createMap("file", fileManager.getName(), "format", format.name())));
         fileManager.setFormat(format);
     }
 

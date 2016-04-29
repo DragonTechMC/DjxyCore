@@ -1,7 +1,7 @@
 package io.github.djxy.core.commands.executors;
 
 import io.github.djxy.core.CoreUtil;
-import io.github.djxy.core.Main;
+import io.github.djxy.core.CoreMain;
 import io.github.djxy.core.Permissions;
 import io.github.djxy.core.commands.CommandExecutor;
 import io.github.djxy.core.files.FileManager;
@@ -25,9 +25,9 @@ public class ReloadFileManagerExecutor extends CommandExecutor {
 
         try {
             fileManager.load();
-            source.sendMessage(Main.getTranslatorInstance().translate(source, "reloadFile", CoreUtil.createMap("file", fileManager.getName())));
+            source.sendMessage(CoreMain.getTranslatorInstance().translate(source, "reloadFile", CoreUtil.createMap("file", fileManager.getName())));
         } catch (Exception e) {
-            source.sendMessage(Main.getTranslatorInstance().translate(source, "reloadFileError", CoreUtil.createMap("file", fileManager.getName())));
+            source.sendMessage(CoreMain.getTranslatorInstance().translate(source, "reloadFileError", CoreUtil.createMap("file", fileManager.getName())));
             e.printStackTrace();
         }
     }

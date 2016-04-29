@@ -1,6 +1,6 @@
 package io.github.djxy.core.commands.nodes;
 
-import io.github.djxy.core.Main;
+import io.github.djxy.core.CoreMain;
 import io.github.djxy.core.commands.CommandExecutor;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
@@ -40,10 +40,10 @@ public abstract class Node {
             if (commandCalled.executor.getPermission() == null || source.hasPermission(commandCalled.executor.getPermission()))
                 commandCalled.executor.execute(source, commandCalled.values);
             else
-                throw new CommandException(Text.of(TextColors.RED).concat(Main.getTranslatorInstance().translate(source, "commandRequirePermission", EMPTY_MAP, false)));
+                throw new CommandException(Text.of(TextColors.RED).concat(CoreMain.getTranslatorInstance().translate(source, "commandRequirePermission", EMPTY_MAP, false)));
         }
         else
-            throw new CommandException(Text.of(TextColors.RED).concat(Main.getTranslatorInstance().translate(source, "commandInvalid", EMPTY_MAP, false)));
+            throw new CommandException(Text.of(TextColors.RED).concat(CoreMain.getTranslatorInstance().translate(source, "commandInvalid", EMPTY_MAP, false)));
     }
 
     public void createCommandCalled(CommandCalled commandCalled, CommandSource source, String[] args, int index) throws CommandException {

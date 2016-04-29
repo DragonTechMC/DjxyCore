@@ -1,6 +1,6 @@
 package io.github.djxy.core.commands.executors;
 
-import io.github.djxy.core.Main;
+import io.github.djxy.core.CoreMain;
 import io.github.djxy.core.commands.CommandExecutor;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
@@ -16,7 +16,7 @@ public class PlayerGetLanguageExecutor extends CommandExecutor {
     @Override
     public void execute(CommandSource source, Map<String, Object> values) throws CommandException {
         if(source instanceof Player)
-            source.sendMessage(Main.getTranslatorInstance().translate(source, "getPlayerLanguage", EMPTY));
+            source.sendMessage(CoreMain.getTranslatorInstance().translate(source, "getPlayerLanguage", EMPTY));
     }
 
 }

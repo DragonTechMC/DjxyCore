@@ -1,6 +1,6 @@
 package io.github.djxy.core.commands.executors;
 
-import io.github.djxy.core.Main;
+import io.github.djxy.core.CoreMain;
 import io.github.djxy.core.Permissions;
 import io.github.djxy.core.commands.CommandExecutor;
 import io.github.djxy.core.translation.TranslationService;
@@ -21,6 +21,6 @@ public class DefaultSetLanguageExecutor extends CommandExecutor {
     @Override
     public void execute(CommandSource source, Map<String, Object> values) throws CommandException {
         TranslationService.DEFAULT_LANGUAGE = (String) values.get("language");
-        source.sendMessage(Main.getTranslatorInstance().translate(TranslationService.DEFAULT_LANGUAGE, "setDefaultLanguage", EMPTY));
+        source.sendMessage(CoreMain.getTranslatorInstance().translate(TranslationService.DEFAULT_LANGUAGE, "setDefaultLanguage", EMPTY));
     }
 }

@@ -1,7 +1,7 @@
 package io.github.djxy.core.commands.nodes;
 
 import io.github.djxy.core.CoreUtil;
-import io.github.djxy.core.Main;
+import io.github.djxy.core.CoreMain;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.Text;
@@ -50,7 +50,7 @@ public abstract class ArgumentNode extends Node {
             if(value != null)
                 commandCalled.addValue(name, value);
             else
-                throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandValueNotValid", CoreUtil.createMap("value", args[index]), false)));
+                throw new CommandException(Text.of(TextColors.WHITE).concat(CoreMain.getTranslatorInstance().translate(source, "commandValueNotValid", CoreUtil.createMap("value", args[index]), false)));
 
             if(next != null)
                 next.createCommandCalled(commandCalled, source, args, index + 1);
@@ -62,10 +62,10 @@ public abstract class ArgumentNode extends Node {
                 if(value != null)
                     commandCalled.addValue(name, value);
                 else
-                    throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandValueNotValid", CoreUtil.createMap("value", args[index]), false)));
+                    throw new CommandException(Text.of(TextColors.WHITE).concat(CoreMain.getTranslatorInstance().translate(source, "commandValueNotValid", CoreUtil.createMap("value", args[index]), false)));
             }
             else
-                throw new CommandException(Text.of(TextColors.WHITE).concat(Main.getTranslatorInstance().translate(source, "commandNotComplete", CoreUtil.createMap("value", args[index]), false)));
+                throw new CommandException(Text.of(TextColors.WHITE).concat(CoreMain.getTranslatorInstance().translate(source, "commandNotComplete", CoreUtil.createMap("value", args[index]), false)));
 
             commandCalled.setExecutor(getExecutor());
         }

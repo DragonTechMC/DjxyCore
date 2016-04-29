@@ -1,7 +1,7 @@
 package io.github.djxy.core.commands.executors;
 
 import io.github.djxy.core.CoreUtil;
-import io.github.djxy.core.Main;
+import io.github.djxy.core.CoreMain;
 import io.github.djxy.core.Permissions;
 import io.github.djxy.core.commands.CommandExecutor;
 import io.github.djxy.core.files.FileManager;
@@ -24,9 +24,9 @@ public class FileSaveExecutor extends CommandExecutor {
 
         try {
             fileManager.save();
-            source.sendMessage(Main.getTranslatorInstance().translate(source, "saveFile", CoreUtil.createMap("file", fileManager.getName())));
+            source.sendMessage(CoreMain.getTranslatorInstance().translate(source, "saveFile", CoreUtil.createMap("file", fileManager.getName())));
         } catch (Exception e) {
-            source.sendMessage(Main.getTranslatorInstance().translate(source, "saveFileError", CoreUtil.createMap("file", fileManager.getName())));
+            source.sendMessage(CoreMain.getTranslatorInstance().translate(source, "saveFileError", CoreUtil.createMap("file", fileManager.getName())));
             e.printStackTrace();
         }
     }

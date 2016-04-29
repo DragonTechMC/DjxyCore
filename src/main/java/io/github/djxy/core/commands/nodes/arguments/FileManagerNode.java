@@ -1,10 +1,10 @@
 package io.github.djxy.core.commands.nodes.arguments;
 
+import io.github.djxy.core.CorePlugin;
 import io.github.djxy.core.commands.nodes.ArgumentNode;
 import io.github.djxy.core.files.FileManager;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -12,48 +12,33 @@ import java.util.List;
  */
 public class FileManagerNode extends ArgumentNode {
 
-    private final HashMap<String,FileManager> fileManagers = new HashMap<>();
+    private final CorePlugin corePlugin;
+    private final Class<? extends FileManager> types[];
 
-    public FileManagerNode(String alias, String name, FileManager... fileManagers) {
+    public FileManagerNode(String alias, String name, CorePlugin plugin, Class<? extends FileManager>... types) {
         super(alias, name);
-
-        for(FileManager fileManager : fileManagers)
-            this.fileManagers.put(fileManager.getName(), fileManager);
+        this.corePlugin = plugin;
+        this.types = types;
     }
 
-    public FileManagerNode(String alias, String name, List<FileManager> fileManagers) {
-        super(alias, name);
-
-        for(FileManager fileManager : fileManagers)
-            this.fileManagers.put(fileManager.getName(), fileManager);
-    }
-
-    public FileManagerNode(String alias, FileManager... fileManagers) {
-        super(alias);
-
-        for(FileManager fileManager : fileManagers)
-            this.fileManagers.put(fileManager.getName(), fileManager);
-    }
-
-    public FileManagerNode(String alias, List<FileManager> fileManagers) {
-        super(alias);
-
-        for(FileManager fileManager : fileManagers)
-            this.fileManagers.put(fileManager.getName(), fileManager);
+    public FileManagerNode(String alias, CorePlugin plugin, Class<? extends FileManager>... types) {
+        super(alias, alias);
+        this.corePlugin = plugin;
+        this.types = types;
     }
 
     @Override
     public Object getValue(String arg) {
-        return fileManagers.get(arg);
+        return corePlugin.getFileManager(arg, types);
     }
 
     @Override
     protected List<String> complete(String complete) {
         List<String> values = new ArrayList<>();
 
-        for(String value : fileManagers.keySet())
-            if(value.toLowerCase().startsWith(complete))
-                values.add(value);
+        for(FileManager fileManager : corePlugin.getFileManagers(types))
+            if(fileManager.getName().toLowerCase().startsWith(complete))
+                values.add(fileManager.getName());
 
         return values;
     }
