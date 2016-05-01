@@ -47,14 +47,13 @@ import java.util.concurrent.TimeUnit;
 public class CoreMain implements CorePlugin {
 
     private static CoreMain instance;
-    private static Translator translatorInstance;
 
     public static CoreMain getInstance() {
         return instance;
     }
 
     public static Translator getTranslatorInstance(){
-        return translatorInstance;
+        return instance.getTranslator();
     }
 
     @Inject @DefaultConfig(sharedRoot = false) private Path path;
@@ -94,7 +93,7 @@ public class CoreMain implements CorePlugin {
 
     @Override
     public void loadTranslations() {
-        translationsFiles = CoreUtil.loadTranslationFiles(getTranslationPath(), (translatorInstance = translator));
+        translationsFiles = CoreUtil.loadTranslationFiles(getTranslationPath(), translator);
     }
 
     @Override
@@ -136,9 +135,7 @@ public class CoreMain implements CorePlugin {
 
         loadCorePlugins();
 
-        for(CorePlugin corePlugin : corePlugins)
-            if(corePlugin.getTranslationPath() != null)
-                corePlugin.getTranslationPath().toFile().mkdirs();
+        corePlugins.stream().filter(corePlugin -> corePlugin.getTranslationPath() != null).forEach(corePlugin -> corePlugin.getTranslationPath().toFile().mkdirs());
     }
 
     @Listener
