@@ -5,38 +5,40 @@ import io.github.djxy.core.commands.Command;
 import io.github.djxy.core.commands.executors.*;
 import io.github.djxy.core.commands.nodes.ChoiceNode;
 import io.github.djxy.core.commands.nodes.Node;
+import io.github.djxy.core.commands.nodes.arguments.BooleanNode;
 import io.github.djxy.core.commands.nodes.arguments.FileManagerNode;
 import io.github.djxy.core.commands.nodes.arguments.LanguageNode;
 import io.github.djxy.core.files.FileManager;
-import io.github.djxy.core.files.fileManagers.ConfigFile;
+import io.github.djxy.core.files.fileManagers.CoreConfigFile;
+import io.github.djxy.core.files.fileManagers.FileUpdateRepositoryFile;
 import io.github.djxy.core.files.fileManagers.PlayerRepositoryFile;
 import io.github.djxy.core.files.fileManagers.TranslationsFile;
-import io.github.djxy.core.network.Github;
 import io.github.djxy.core.network.Metrics;
 import io.github.djxy.core.network.updates.PluginsUpdate;
 import io.github.djxy.core.network.updates.TranslationsUpdate;
-import io.github.djxy.core.network.updates.Update;
 import io.github.djxy.core.repositories.PlayerRepository;
-import io.github.djxy.core.translation.TranslationService;
 import io.github.djxy.core.translation.Translator;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.DefaultConfig;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameConstructionEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppedServerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.service.permission.PermissionService;
-import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Samuel on 2016-04-23.
@@ -47,7 +49,7 @@ public class CoreMain implements CorePlugin {
     private static CoreMain instance;
     private static Translator translatorInstance;
 
-    public static CoreMain getInstance(){
+    public static CoreMain getInstance() {
         return instance;
     }
 
@@ -55,17 +57,16 @@ public class CoreMain implements CorePlugin {
         return translatorInstance;
     }
 
-    @Inject
-    @DefaultConfig(sharedRoot = false)
-    private Path path;
-
+    @Inject @DefaultConfig(sharedRoot = false) private Path path;
     private Translator translator = new Translator(TextSerializers.FORMATTING_CODE.deserialize("&f[&6Djxy&l&4Core&r&f] "));
     private CopyOnWriteArrayList<CorePlugin> corePlugins = new CopyOnWriteArrayList<>();
+    private FileUpdateRepositoryFile fileUpdateRepositoryFile;
     private ArrayList<FileManager> translationsFiles;
     private PlayerRepositoryFile playerRepositoryFile;
-    private ConfigFile configFile;
+    private CoreConfigFile configFile;
     private Path translationPath;
-    private Github github = new Github();
+    private int intervalUpdate = 1;
+    private Task updateTask;
 
     @Override
     public String getName() {
@@ -93,122 +94,112 @@ public class CoreMain implements CorePlugin {
     }
 
     @Override
-    public List<FileManager> getFileManagers(Class<? extends FileManager>... type) {
-        return null;
+    public void loadTranslations() {
+        translationsFiles = CoreUtil.loadTranslationFiles(translationPath, (translatorInstance = translator));
     }
 
     @Override
-    public FileManager getFileManager(String name, Class<? extends FileManager>... type) {
+    public List<FileManager> getFileManagers(Class<? extends FileManager>... types) {
+        List<FileManager> fileManagers = new ArrayList<>();
+
+        for(Class<? extends FileManager> clazz : types){
+            if(clazz == TranslationsFile.class) fileManagers.addAll((Collection<? extends FileManager>) translationsFiles.clone());
+            else if(clazz == PlayerRepositoryFile.class) fileManagers.add(playerRepositoryFile);
+            else if(clazz == CoreConfigFile.class) fileManagers.add(configFile);
+            else if(clazz == FileUpdateRepositoryFile.class) fileManagers.add(fileUpdateRepositoryFile);
+        }
+
+        return fileManagers;
+    }
+
+    @Override
+    public FileManager getFileManager(String name, Class<? extends FileManager>... types) {
+        for(Class<? extends FileManager> clazz : types){
+            if(clazz == TranslationsFile.class) {
+                for (FileManager translationsFile : translationsFiles)
+                    if (translationsFile.getName().equals(name))
+                        return translationsFile;
+            }
+            else if(clazz == PlayerRepositoryFile.class && playerRepositoryFile.getName().equals(name))
+                return playerRepositoryFile;
+            else if(clazz == CoreConfigFile.class && configFile.getName().equals(name))
+                return configFile;
+            else if(clazz == FileUpdateRepositoryFile.class && fileUpdateRepositoryFile.getName().equals(name))
+                return fileUpdateRepositoryFile;
+        }
+
         return null;
     }
 
     @Listener
     public void onGameConstructionEvent(GameConstructionEvent event){
         instance = this;
+        translationPath = path.getParent().resolve("translations");
+        translationPath.toFile().mkdirs();
     }
 
     @Listener
     public void onGamePreInitializationEvent(GamePreInitializationEvent event) {
-        CoreUtil.loadFileManagers((configFile = new ConfigFile(path.getParent())), (playerRepositoryFile = new PlayerRepositoryFile(path.getParent())));
-        translationsFiles = CoreUtil.loadTranslationFiles((translationPath = path.getParent().resolve("translations")), (translatorInstance = translator));
+        initMetrics();
+
+        CoreUtil.loadFileManagers(
+                configFile = new CoreConfigFile(path.getParent(), this),
+                playerRepositoryFile = new PlayerRepositoryFile(path.getParent()),
+                fileUpdateRepositoryFile = new FileUpdateRepositoryFile(path.getParent())
+        );
+
+        loadCorePlugins();
 
         Sponge.getCommandManager().register(this, new Command(createCommandLanguage()), "language");
         Sponge.getCommandManager().register(this, new Command(createCommandTranslation()), "translation");
-        addCorePlugin(new CorePlugin() {
-            @Override
-            public String getName() {
-                return "DjxyCore";
-            }
+        Sponge.getCommandManager().register(this, new Command(createCommandUpdate()), "update");
 
-            @Override
-            public String getGithubApiURL() {
-                return "https://api.github.com/repos/djxy/DjxyCore";
-            }
+        new TranslationsUpdate((List<CorePlugin>) corePlugins.clone(), true).check();
 
-            @Override
-            public String getVersion() {
-                return "-1-1";
-            }
+        corePlugins.forEach(io.github.djxy.core.CorePlugin::loadTranslations);
 
-            @Override
-            public Path getTranslationPath() {
-                return translationPath;
-            }
-
-            @Override
-            public Translator getTranslator() {
-                return translator;
-            }
-
-            @Override
-            public List<FileManager> getFileManagers(Class<? extends FileManager>... type) {
-                return null;
-            }
-
-            @Override
-            public FileManager getFileManager(String name, Class<? extends FileManager>... type) {
-                return null;
-            }
-
-        });
-        initMetrics();
-        new TranslationsUpdate(this, true).run();
+        startUpdateInterval();
     }
 
-    public void checkPluginsUpdate(){
-        checkUpdate(new PluginsUpdate(this));
+    @Listener
+    public void onGameStartingServerEvent(GameStartingServerEvent event){
     }
 
-    public void checkTranslationsUpdate(){
-        checkUpdate(new TranslationsUpdate(this));
+    public int getIntervalUpdate() {
+        return intervalUpdate;
     }
 
-    private void checkUpdate(Update update){
-        Optional<PermissionService> opt = Sponge.getServiceManager().provide(PermissionService.class);
+    public void setIntervalUpdate(int intervalUpdate) {
+        this.intervalUpdate = intervalUpdate;
 
-        if(opt.isPresent()){
-            PermissionService permissionService = opt.get();
-            Set<Subject> subjects = permissionService.getUserSubjects().getAllWithPermission(Permissions.NOTIFY_UPDATE).keySet();
-            List<Player> players = new ArrayList<>();
-
-            for(Subject subject : subjects){
-                try{
-                    UUID uuid = UUID.fromString(subject.getIdentifier());
-                    players.add(Sponge.getServer().getPlayer(uuid).get());
-                }catch (Exception e){}
-            }
-
-            if(players.size() != 0) {
-                update.setPlayersToNotify(players);
-                update.setPluginsToCheck((List<CorePlugin>) corePlugins.clone());
-
-                new Thread(update).start();
-            }
-        }
-    }
-
-    public void addCorePlugin(CorePlugin corePlugin){
-        corePlugins.add(corePlugin);
+        startUpdateInterval();
     }
 
     @Listener
     public void onGameStoppedServerEvent(GameStoppedServerEvent event) {
-        CoreUtil.saveFileManagers(configFile, playerRepositoryFile);
+        CoreUtil.saveFileManagers(configFile, playerRepositoryFile, fileUpdateRepositoryFile);
     }
 
     @Listener
-    public void onJoin(ClientConnectionEvent.Login event){
+    public void onLogin(ClientConnectionEvent.Login event){
         PlayerRepository.getInstance().createPlayerIfNotExist(event.getProfile().getUniqueId());
     }
 
     @Listener
     public void onJoin(ClientConnectionEvent.Join event){
         PlayerRepository.getInstance().setPlayerData(event.getTargetEntity().getUniqueId(), "name", event.getTargetEntity().getName());
+    }
 
-        if (!TranslationService.getInstance().hasPlayerLanguage(event.getTargetEntity().getUniqueId()))
-            TranslationService.getInstance().setPlayerLanguage(event.getTargetEntity().getUniqueId(), TranslationService.DEFAULT_LANGUAGE);
-
-        checkPluginsUpdate();
+    public Node createCommandUpdate(){
+        return new ChoiceNode("")
+                .addNode(new ChoiceNode("plugins")
+                        .addNode(new ChoiceNode("set")
+                                .addNode(new BooleanNode("receiveNotification", "value")
+                                        .setExecutor(new PlayerSetReceiveNotification.Plugins()))))
+                .addNode(new ChoiceNode("translations")
+                        .addNode(new ChoiceNode("set")
+                                .addNode(new BooleanNode("receiveNotification", "value")
+                                        .setExecutor(new PlayerSetReceiveNotification.Translations()))));
     }
 
     public Node createCommandLanguage(){
@@ -230,30 +221,33 @@ public class CoreMain implements CorePlugin {
                                 .setExecutor(new ReloadFileManagerExecutor())));
     }
 
+    private void startUpdateInterval(){
+        if(updateTask != null)
+            updateTask.cancel();
+
+        updateTask = Sponge
+                .getScheduler()
+                .createTaskBuilder()
+                .interval(intervalUpdate, TimeUnit.MINUTES)
+                .execute(e -> {
+                    new PluginsUpdate((List<CorePlugin>) corePlugins.clone()).check();
+                    new TranslationsUpdate((List<CorePlugin>) corePlugins.clone()).check();
+                })
+                .submit(this);
+    }
+
+    private void loadCorePlugins(){
+        for(PluginContainer pluginContainer : Sponge.getPluginManager().getPlugins()){
+            Optional<?> instance = pluginContainer.getInstance();
+
+            if(instance.isPresent() && instance.get() instanceof CorePlugin)
+                corePlugins.add((CorePlugin) instance.get());
+        }
+    }
+
     private void initMetrics(){
         try {
-            CoreMain plugin = this;
-            Metrics metrics = new Metrics(Sponge.getGame(), new PluginContainer() {
-                @Override
-                public String getId() {
-                    return plugin.getName();
-                }
-
-                @Override
-                public String getUnqualifiedId() {
-                    return plugin.getName();
-                }
-
-                @Override
-                public Optional<?> getInstance() {
-                    return Optional.of(plugin);
-                }
-
-                @Override
-                public Optional<String> getVersion() {
-                    return Optional.of(plugin.getVersion());
-                }
-            });
+            Metrics metrics = new Metrics(Sponge.getGame(), this);
             metrics.start();
         } catch (IOException e) {
             e.printStackTrace();

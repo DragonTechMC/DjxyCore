@@ -29,6 +29,8 @@ public interface CorePlugin {
 
     public Translator getTranslator();
 
+    public void loadTranslations();
+
     public List<FileManager> getFileManagers(Class<? extends FileManager>... type);
 
     public FileManager getFileManager(String name, Class<? extends FileManager>... type);

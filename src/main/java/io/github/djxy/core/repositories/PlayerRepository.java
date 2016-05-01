@@ -10,6 +10,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PlayerRepository {
 
+    public static final String RECEIVE_NOTIFICATION_TRANSLATIONS = "receiveNotificationTranslationsUpdates";
+    public static final String RECEIVE_NOTIFICATION_PLUGINS = "receiveNotificationPluginsUpdates";
+    public static final String LANGUAGE = "language";
+
     private static final PlayerRepository instance = new PlayerRepository();
 
     public static PlayerRepository getInstance() {
@@ -31,8 +35,60 @@ public class PlayerRepository {
         return new ArrayList<>(players.get(uuid).keySet());
     }
 
+    public Boolean getPlayerBoolean(UUID uuid, String key){
+        Object o = getPlayerData(uuid, key);
+
+        return o instanceof Boolean? (Boolean) o :null;
+    }
+
+    public Boolean getPlayerBoolean(UUID uuid, String key, Boolean def){
+        Object o = getPlayerData(uuid, key);
+
+        return o instanceof Boolean? (Boolean) o :def;
+    }
+
+    public Double getPlayerDouble(UUID uuid, String key){
+        Object o = getPlayerData(uuid, key);
+
+        return o instanceof Double? (Double) o :null;
+    }
+
+    public Double getPlayerDouble(UUID uuid, String key, Double def){
+        Object o = getPlayerData(uuid, key);
+
+        return o instanceof Double? (Double) o :def;
+    }
+
+    public Integer getPlayerInteger(UUID uuid, String key){
+        Object o = getPlayerData(uuid, key);
+
+        return o instanceof Integer? (Integer) o :null;
+    }
+
+    public Integer getPlayerInteger(UUID uuid, String key, Integer def){
+        Object o = getPlayerData(uuid, key);
+
+        return o instanceof Integer? (Integer) o :def;
+    }
+
+    public String getPlayerString(UUID uuid, String key){
+        Object o = getPlayerData(uuid, key);
+
+        return o instanceof String? (String) o :null;
+    }
+
+    public String getPlayerString(UUID uuid, String key, String def){
+        Object o = getPlayerData(uuid, key);
+
+        return o instanceof String? (String) o :def;
+    }
+
     public Object getPlayerData(UUID uuid, String key){
-        return players.get(uuid).get(key);
+        return players.containsKey(uuid)?players.get(uuid).get(key):null;
+    }
+
+    public Object getPlayerData(UUID uuid, String key, Object def){
+        return players.containsKey(uuid)?players.get(uuid).get(key):def;
     }
 
     public void setPlayerData(UUID uuid, String key, Object value){

@@ -25,16 +25,12 @@ public class TranslationService {
         languages.add(DEFAULT_LANGUAGE);
     }
 
-    public boolean hasPlayerLanguage(UUID uuid){
-        return PlayerRepository.getInstance().hasPlayerData(uuid, "language");
-    }
-
     public void setPlayerLanguage(UUID uuid, String lang){
-        PlayerRepository.getInstance().setPlayerData(uuid, "language", lang);
+        PlayerRepository.getInstance().setPlayerData(uuid, PlayerRepository.LANGUAGE, lang);
     }
 
     public String getPlayerLanguage(UUID uuid){
-        return (String) PlayerRepository.getInstance().getPlayerData(uuid, "language");
+        return PlayerRepository.getInstance().getPlayerString(uuid, PlayerRepository.LANGUAGE, DEFAULT_LANGUAGE);
     }
 
     public void addLanguage(String lang){
@@ -42,7 +38,6 @@ public class TranslationService {
     }
 
     public List<String> getLanguages() {
-        System.out.println(new ArrayList<>(languages));
         return new ArrayList<>(languages);
     }
 

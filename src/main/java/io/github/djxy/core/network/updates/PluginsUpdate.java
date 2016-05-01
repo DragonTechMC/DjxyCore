@@ -1,24 +1,22 @@
 package io.github.djxy.core.network.updates;
 
+import io.github.djxy.core.CoreMain;
 import io.github.djxy.core.CorePlugin;
 import io.github.djxy.core.network.Github;
+import io.github.djxy.core.repositories.PlayerRepository;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.action.TextActions;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by Samuel on 2016-04-29.
  */
 public class PluginsUpdate extends Update {
 
-    /**
-     * Never forget it could be async with the server.
-     *
-     * @param plugin
-     */
-    public PluginsUpdate(CorePlugin plugin) {
-        super(plugin);
+    public PluginsUpdate(List<CorePlugin> plugins) {
+        super(plugins, PlayerRepository.RECEIVE_NOTIFICATION_PLUGINS);
     }
 
     @Override
@@ -31,14 +29,18 @@ public class PluginsUpdate extends Update {
                 values.put("version", release.getVersion());
                 values.put("plugin", release.getName());
                 values.put("clickHereUrl", TextActions.openUrl(createURL(release.getUrl())));
-                values.put("clickHereStop", TextActions.executeCallback(e -> {}));
+                values.put("clickHereStop", TextActions.executeCallback(e -> {
+                    PlayerRepository.getInstance().setPlayerData(((Player) e).getUniqueId(), PlayerRepository.RECEIVE_NOTIFICATION_TRANSLATIONS, false);
+                    e.sendMessage(CoreMain.getTranslatorInstance().translate(e, "setReceiveNotificationPluginsFalse", null));
+                }));
 
                 for(Player player : players) {
                     createSyncTask(e -> {
-                        player.sendMessage(plugin.getTranslator().translate(player, "notifyNewRelease", values));
+                        player.sendMessage(CoreMain.getTranslatorInstance().translate(player, "notifyNewRelease", values));
                     });
                 }
             }
         }
     }
+
 }

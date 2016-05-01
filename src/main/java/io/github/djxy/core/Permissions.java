@@ -9,6 +9,6 @@ public class Permissions {
     public static final String FILE_SAVE            = "djxycore.commands.admin.file.save";
     public static final String FILE_SET_FORMAT      = "djxycore.commands.admin.file.set.format";
     public static final String DEFAULT_SET_LANGUAGE = "djxycore.commands.admin.set.default.language";
-    public static final String NOTIFY_UPDATE        = "djxycore.update.notify";
+    public static final String UPDATE               = "djxycore.update.admin";
 
 }

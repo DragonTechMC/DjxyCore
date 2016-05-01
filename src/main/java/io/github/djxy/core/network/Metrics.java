@@ -26,31 +26,20 @@ package io.github.djxy.core.network;/*
  * either expressed or implied, of anybody else.
  */
 
+import io.github.djxy.core.CorePlugin;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.scheduler.Task;
 
 import javax.inject.Inject;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPOutputStream;
 
@@ -84,7 +73,7 @@ public class Metrics {
     /**
      * The plugin this metrics submits for
      */
-    private final PluginContainer plugin;
+    private final CorePlugin plugin;
 
     /**
      * All of the custom graphs to submit to metrics
@@ -127,7 +116,7 @@ public class Metrics {
     private volatile Task task = null;
 
     @Inject
-    public Metrics(final Game game, final PluginContainer plugin) throws IOException {
+    public Metrics(final Game game, final CorePlugin plugin) throws IOException {
         if (plugin == null) {
             throw new IllegalArgumentException("Plugin cannot be null");
         }
@@ -335,7 +324,7 @@ public class Metrics {
         // Server software specific section
         String pluginName = plugin.getName();
         boolean onlineMode = game.getServer().getOnlineMode(); // TRUE if online mode is enabled
-        String pluginVersion = plugin.getVersion().get();
+        String pluginVersion = plugin.getVersion();
         // TODO no visible way to get MC version at the moment
         // TODO added by game.getPlatform().getMinecraftVersion() -- impl in 2.1
         String serverVersion = String.format("%s %s", "Sponge", game.getPlatform().getApi().getVersion());

@@ -44,6 +44,7 @@ public class Github {
                 JsonObject update = updates.get(i).getAsJsonObject();
 
                 fileUpdates.add(new FileUpdate(
+                        corePlugin.getName(),
                         update.get("name").getAsString(),
                         update.get("download_url").getAsString(),
                         update.get("sha").getAsString(),
@@ -99,16 +100,22 @@ public class Github {
 
     public class FileUpdate {
 
+        private final String plugin;
         private final String name;
         private final String downloadUrl;
         private final String sha;
         private final int size;
 
-        public FileUpdate(String name, String downloadUrl, String sha, int size) {
+        public FileUpdate(String plugin, String name, String downloadUrl, String sha, int size) {
+            this.plugin = plugin;
             this.name = name;
             this.downloadUrl = downloadUrl;
             this.sha = sha;
             this.size = size;
+        }
+
+        public String getPlugin() {
+            return plugin;
         }
 
         public String getName() {

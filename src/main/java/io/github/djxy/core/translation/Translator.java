@@ -46,7 +46,7 @@ public class Translator {
 
     public String getTranslation(String language, String code){
         if(translations.containsKey(language))
-            return translations.get(language).containsKey(code)?translations.get(language).get(code):"";
+            return translations.get(language).containsKey(code)?translations.get(language).get(code):translations.get(TranslationService.DEFAULT_LANGUAGE).get(code);
         else
             return translations.get(TranslationService.DEFAULT_LANGUAGE).get(code);
     }
