@@ -64,7 +64,6 @@ public class CoreMain implements CorePlugin {
     private ArrayList<FileManager> translationsFiles;
     private PlayerRepositoryFile playerRepositoryFile;
     private CoreConfigFile configFile;
-    private Path translationPath;
     private int intervalUpdate = 1;
     private Task updateTask;
 
@@ -85,7 +84,7 @@ public class CoreMain implements CorePlugin {
 
     @Override
     public Path getTranslationPath() {
-        return translationPath;
+        return path.getParent().resolve("translations");
     }
 
     @Override
@@ -95,7 +94,7 @@ public class CoreMain implements CorePlugin {
 
     @Override
     public void loadTranslations() {
-        translationsFiles = CoreUtil.loadTranslationFiles(translationPath, (translatorInstance = translator));
+        translationsFiles = CoreUtil.loadTranslationFiles(getTranslationPath(), (translatorInstance = translator));
     }
 
     @Override
@@ -134,8 +133,12 @@ public class CoreMain implements CorePlugin {
     @Listener
     public void onGameConstructionEvent(GameConstructionEvent event){
         instance = this;
-        translationPath = path.getParent().resolve("translations");
-        translationPath.toFile().mkdirs();
+
+        loadCorePlugins();
+
+        for(CorePlugin corePlugin : corePlugins)
+            if(corePlugin.getTranslationPath() != null)
+                corePlugin.getTranslationPath().toFile().mkdirs();
     }
 
     @Listener
