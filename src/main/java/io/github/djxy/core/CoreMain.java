@@ -16,6 +16,7 @@ import io.github.djxy.core.files.fileManagers.TranslationsFile;
 import io.github.djxy.core.network.Metrics;
 import io.github.djxy.core.network.updates.PluginsUpdate;
 import io.github.djxy.core.network.updates.TranslationsUpdate;
+import io.github.djxy.core.repositories.FileUpdateRepository;
 import io.github.djxy.core.repositories.PlayerRepository;
 import io.github.djxy.core.translation.Translator;
 import org.spongepowered.api.Sponge;
@@ -23,7 +24,6 @@ import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameConstructionEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppedServerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
@@ -65,6 +65,15 @@ public class CoreMain implements CorePlugin {
     private CoreConfigFile configFile;
     private int intervalUpdate = 1;
     private Task updateTask;
+
+    public CopyOnWriteArrayList<CorePlugin> getCorePlugins() {
+        return (CopyOnWriteArrayList<CorePlugin>) corePlugins.clone();
+    }
+
+    @Override
+    public String getId() {
+        return "djxycore";
+    }
 
     @Override
     public String getName() {
@@ -154,15 +163,11 @@ public class CoreMain implements CorePlugin {
         Sponge.getCommandManager().register(this, new Command(createCommandTranslation()), "translation");
         Sponge.getCommandManager().register(this, new Command(createCommandUpdate()), "update");
 
-        new TranslationsUpdate((List<CorePlugin>) corePlugins.clone(), true).check();
+        new TranslationsUpdate(false).check();
 
         corePlugins.forEach(io.github.djxy.core.CorePlugin::loadTranslations);
 
         startUpdateInterval();
-    }
-
-    @Listener
-    public void onGameStartingServerEvent(GameStartingServerEvent event){
     }
 
     public int getIntervalUpdate() {
@@ -221,6 +226,12 @@ public class CoreMain implements CorePlugin {
                                 .setExecutor(new ReloadFileManagerExecutor())));
     }
 
+    private void downloadTranslations(){
+        for(String plugin : FileUpdateRepository.getInstance().getPlugins())
+            for(FileUpdateRepository.FileUpdate fileUpdate : FileUpdateRepository.getInstance().getFileUpdates(plugin))
+                fileUpdate.download();
+    }
+
     private void startUpdateInterval(){
         if(updateTask != null)
             updateTask.cancel();
@@ -228,10 +239,10 @@ public class CoreMain implements CorePlugin {
         updateTask = Sponge
                 .getScheduler()
                 .createTaskBuilder()
-                .interval(intervalUpdate, TimeUnit.MINUTES)
+                .interval(intervalUpdate, TimeUnit.HOURS)
                 .execute(e -> {
-                    new PluginsUpdate((List<CorePlugin>) corePlugins.clone()).check();
-                    new TranslationsUpdate((List<CorePlugin>) corePlugins.clone()).check();
+                    new TranslationsUpdate(true).check();
+                    new PluginsUpdate(true).check();
                 })
                 .submit(this);
     }

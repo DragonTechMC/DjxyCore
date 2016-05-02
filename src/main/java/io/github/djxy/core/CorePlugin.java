@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface CorePlugin {
 
+    public String getId();
+
     public String getName();
 
     public String getGithubApiURL();
