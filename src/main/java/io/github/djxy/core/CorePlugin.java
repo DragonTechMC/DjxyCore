@@ -2,6 +2,7 @@ package io.github.djxy.core;
 
 import io.github.djxy.core.files.FileManager;
 import io.github.djxy.core.translation.Translator;
+import org.spongepowered.api.plugin.Plugin;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -11,17 +12,7 @@ import java.util.List;
  */
 public interface CorePlugin {
 
-    public String getId();
-
-    public String getName();
-
     public String getGithubApiURL();
-
-    /**
-     * Version is the name of the version
-     * @return
-     */
-    public String getVersion();
 
     /**
      * If return null, no check for updates
@@ -37,4 +28,15 @@ public interface CorePlugin {
 
     public FileManager getFileManager(String name, Class<? extends FileManager>... type);
 
+    default public String getId() {
+        return getClass().getDeclaredAnnotation(Plugin.class).id();
+    }
+
+    default String getName() {
+        return getClass().getDeclaredAnnotation(Plugin.class).name();
+    }
+
+    default String getVersion() {
+        return getClass().getDeclaredAnnotation(Plugin.class).version();
+    }
 }

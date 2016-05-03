@@ -17,7 +17,7 @@ public class PluginsUpdate extends Update {
     @Override
     public void run() {
         CoreMain.getInstance().getCorePlugins().forEach(github::checkLatestRelease);
-        CoreMain.getInstance().getCorePlugins().forEach(ore::checkLatestRelease);
+        //CoreMain.getInstance().getCorePlugins().forEach(ore::checkLatestRelease); Doesn't work, SSL certificat isn't trusted
     }
 
 }

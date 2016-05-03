@@ -43,10 +43,10 @@ public abstract class PlayerSetReceiveNotification extends CommandExecutor {
         }
     }
 
-    public static class Translations extends PlayerSetReceiveNotification {
+    public static class Files extends PlayerSetReceiveNotification {
 
-        public Translations() {
-            super(PlayerRepository.RECEIVE_NOTIFICATION_TRANSLATIONS, "setReceiveNotificationTranslations");
+        public Files() {
+            super(PlayerRepository.RECEIVE_NOTIFICATION_FILES, "setReceiveNotificationFiles");
         }
     }
 

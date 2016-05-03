@@ -3,6 +3,8 @@ package io.github.djxy.core.repositories;
 import io.github.djxy.core.CoreMain;
 import io.github.djxy.core.CorePlugin;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -24,6 +26,10 @@ public class PluginUpdateRepository {
         return new ArrayList<>(pluginUpdates);
     }
 
+    public boolean hasUpdate(){
+        return !pluginUpdates.isEmpty();
+    }
+
     public static class PluginUpdate {
 
         private final String name;
@@ -38,7 +44,7 @@ public class PluginUpdateRepository {
             this.newUpdate = false;
 
             for(CorePlugin corePlugin : CoreMain.getInstance().getCorePlugins()) {
-                if (name.equals(corePlugin) && !version.equals(corePlugin.getVersion())){
+                if (name.equals(corePlugin.getName()) && !version.equals(corePlugin.getVersion())){
                     newUpdate = true;
                     instance.pluginUpdates.add(this);
                 }
@@ -49,8 +55,12 @@ public class PluginUpdateRepository {
             return newUpdate;
         }
 
-        public String getUrl() {
-            return url;
+        public URL getUrl() {
+            try {
+                return new URL(url);
+            } catch (MalformedURLException e) {
+                return null;
+            }
         }
 
         public String getName() {

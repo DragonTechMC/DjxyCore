@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PlayerRepository {
 
-    public static final String RECEIVE_NOTIFICATION_TRANSLATIONS = "receiveNotificationTranslationsUpdates";
+    public static final String RECEIVE_NOTIFICATION_FILES = "receiveNotificationFilesUpdates";
     public static final String RECEIVE_NOTIFICATION_PLUGINS = "receiveNotificationPluginsUpdates";
     public static final String LANGUAGE = "language";
 

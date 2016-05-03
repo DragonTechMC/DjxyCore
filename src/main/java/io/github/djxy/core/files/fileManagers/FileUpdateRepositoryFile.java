@@ -5,6 +5,9 @@ import io.github.djxy.core.repositories.FileUpdateRepository;
 import ninja.leaping.configurate.ConfigurationNode;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Samuel on 2016-04-30.
@@ -19,21 +22,27 @@ public class FileUpdateRepositoryFile extends FileManager {
     protected void save(ConfigurationNode root) {
         FileUpdateRepository fur = FileUpdateRepository.getInstance();
 
-        for(String plugin : fur.getPlugins())
-            root.getNode(plugin).setValue(fur.getFilesDownloaded(plugin));
+        for(String plugin : fur.getPlugins()){
+            List<String> files = new ArrayList<>();
+
+            for(FileUpdateRepository.FileUpdate fileUpdate : fur.getFilesDownloaded(plugin))
+                files.add(fileUpdate.getSha());
+
+            root.getNode(plugin).setValue(files);
+        }
     }
 
     @Override
     protected void load(ConfigurationNode root) {
-        /*FileUpdateRepository fur = FileUpdateRepository.getInstance();
+        FileUpdateRepository fur = FileUpdateRepository.getInstance();
         Map<Object, ConfigurationNode> plugins = (Map<Object, ConfigurationNode>) root.getChildrenMap();
 
         for(Object plugin : plugins.keySet()){
             List<ConfigurationNode> files = (List<ConfigurationNode>) plugins.get(plugin).getChildrenList();
 
             for(ConfigurationNode file : files)
-                fur.addFileDownloaded((String) plugin, file.getString());
-        }*/
+                fur.addDownloadedFile((String) plugin, file.getString());
+        }
     }
 
 }

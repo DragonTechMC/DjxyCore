@@ -1,16 +1,16 @@
 package io.github.djxy.core.repositories;
 
-import io.github.djxy.core.CorePlugin;
 import io.github.djxy.core.network.NetworkUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * Created by Samuel on 2016-04-30.
@@ -26,7 +26,7 @@ public class FileUpdateRepository {
     }
 
     private final ConcurrentHashMap<String, ConcurrentHashMap<FileUpdate, Object>> filesDownloaded = new ConcurrentHashMap<>();//Plugin/File/null
-    private final ConcurrentHashMap<String, List<FileUpdate>> fileUpdates = new ConcurrentHashMap<>();//Plugin/File
+    private final ConcurrentHashMap<String, CopyOnWriteArraySet<FileUpdate>> fileUpdates = new ConcurrentHashMap<>();//Plugin/File
 
     public Collection<String> getPlugins(){
         HashSet<String> plugins = new HashSet<>();
@@ -51,43 +51,62 @@ public class FileUpdateRepository {
             return EMPTY;
     }
 
+    public void addDownloadedFile(String pluginName, String sha){
+        if (!instance.filesDownloaded.containsKey(pluginName))
+            instance.filesDownloaded.put(pluginName, new ConcurrentHashMap<>());
+
+        instance.filesDownloaded.get(pluginName).put(new FileUpdate(pluginName, null, "", sha, -1, null), true);
+    }
+
+    public boolean hasUpdate() {
+        for (String plugin : getPlugins())
+            if(getFileUpdates(plugin).size() != 0)
+                return true;
+
+            return false;
+    }
+
     public static class FileUpdate{
 
-        private final CorePlugin plugin;
+        private final String plugin;
         private final String name;
         private final String downloadUrl;
         private final String sha;
+        private final Path pathToDownload;
         private final int size;
 
-        public FileUpdate(CorePlugin plugin, String name, String downloadUrl, String sha, int size) {
+        public FileUpdate(String plugin, String name, String downloadUrl, String sha, int size, Path pathToDownload) {
             this.plugin = plugin;
             this.name = name;
             this.downloadUrl = downloadUrl;
             this.sha = sha;
             this.size = size;
+            this.pathToDownload = pathToDownload;
 
-            if(!instance.fileUpdates.containsKey(plugin.getName()))
-                instance.fileUpdates.put(plugin.getName(), new CopyOnWriteArrayList<>());
+            if(pathToDownload != null && canDownload()) {
+                if (!instance.fileUpdates.containsKey(plugin))
+                    instance.fileUpdates.put(plugin, new CopyOnWriteArraySet<>());
 
-            instance.fileUpdates.get(plugin.getName()).add(this);
-        }
-
-        public boolean canDownload() {
-            return !instance.filesDownloaded.containsKey(plugin.getName()) || !instance.filesDownloaded.get(plugin.getName()).containsKey(this);
-        }
-
-        public void download(){
-            if(canDownload()) {
-                if (!instance.filesDownloaded.containsKey(plugin.getName()))
-                    instance.filesDownloaded.put(plugin.getName(), new ConcurrentHashMap<>());
-
-                instance.fileUpdates.get(plugin.getName()).remove(this);
-                instance.filesDownloaded.get(plugin.getName()).put(this, true);
-                createFile(plugin.getTranslationPath().toFile(), NetworkUtil.requestHttps(downloadUrl, size));
+                instance.fileUpdates.get(plugin).add(this);
             }
         }
 
-        public CorePlugin getPlugin() {
+        public boolean canDownload() {
+            return !instance.filesDownloaded.containsKey(plugin) || !instance.filesDownloaded.get(plugin).containsKey(this);
+        }
+
+        public void download(){
+            if(pathToDownload != null && canDownload()) {
+                if (!instance.filesDownloaded.containsKey(plugin))
+                    instance.filesDownloaded.put(plugin, new ConcurrentHashMap<>());
+
+                instance.fileUpdates.get(plugin).remove(this);
+                instance.filesDownloaded.get(plugin).put(this, true);
+                createFile(pathToDownload.resolve(name).toFile(), NetworkUtil.requestHttps(downloadUrl, size));
+            }
+        }
+
+        public String getPlugin() {
             return plugin;
         }
 
@@ -109,13 +128,13 @@ public class FileUpdateRepository {
 
         @Override
         public int hashCode() {
-            return plugin.getName().hashCode()+sha.hashCode();
+            return plugin.hashCode()+sha.hashCode();
         }
 
         @Override
         public boolean equals(Object obj) {
             if(obj instanceof FileUpdate)
-                return ((FileUpdate) obj).plugin.getName().equals(plugin.getName()) && ((FileUpdate) obj).sha.equals(sha);
+                return ((FileUpdate) obj).plugin.equals(plugin) && ((FileUpdate) obj).sha.equals(sha);
             else
                 return super.equals(obj);
         }

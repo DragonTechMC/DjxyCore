@@ -51,6 +51,10 @@ public class Translator {
             return translations.get(TranslationService.DEFAULT_LANGUAGE).get(code);
     }
 
+    public boolean containTranslation(String language, String code){
+        return translations.containsKey(language) && translations.get(language).containsKey(code);
+    }
+
     public Text translate(String language, String code, Map<String,Object> values){
         return translate(language, code, values, true);
     }
@@ -76,7 +80,8 @@ public class Translator {
 
                 if(var.startsWith("click")){
                     TextAction action = values.containsKey(var)? (TextAction) values.get(var) :TextActions.executeCallback(e->{});
-                    text = text.concat(transformClick(getTranslation(language, "clickHere"), action));
+                    String click = containTranslation(language, var)?getTranslation(language, var):getTranslation(language, "clickHere");
+                    text = text.concat(transformClick(click, action));
                 }
                 else {
                     String value = values.containsKey(var)?values.get(var).toString():"{"+var+"}";

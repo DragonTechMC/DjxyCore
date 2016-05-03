@@ -12,13 +12,17 @@ import java.net.URL;
 public class NetworkUtil {
 
     public static String requestHttp(String httpUrl){
-        return requestHttps(httpUrl, 1024);
+        return requestHttp(httpUrl, 1024);
     }
 
     public static String requestHttp(String httpUrl, int size){
         try {
             URL url = new URL(httpUrl);
             HttpURLConnection con = (HttpURLConnection)url.openConnection();
+
+            if(con.getResponseCode() != 200)
+                return null;
+
             BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
             StringBuffer buffer = new StringBuffer(size);
             String line;
@@ -43,6 +47,10 @@ public class NetworkUtil {
         try {
             URL url = new URL(httpsUrl);
             HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
+
+            if(con.getResponseCode() != 200)
+                return null;
+
             BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
             StringBuffer buffer = new StringBuffer(size);
             String line;

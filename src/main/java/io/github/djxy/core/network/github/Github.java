@@ -13,8 +13,10 @@ import io.github.djxy.core.repositories.PluginUpdateRepository;
  */
 public class Github {
 
+    private static final String githubId = "?client_id=50913361a260f21a0bb7&client_secret=2db25b6684c5d0c9326f26e84f5d2847bdbc9611";
+
     public void checkLatestRelease(CorePlugin corePlugin){
-        String request = NetworkUtil.requestHttps(corePlugin.getGithubApiURL() + "/releases/latest");
+        String request = NetworkUtil.requestHttps(corePlugin.getGithubApiURL() + "/releases/latest"+githubId);
 
         if(request != null) {
             JsonObject release = new JsonParser().parse(request).getAsJsonObject();
@@ -26,7 +28,7 @@ public class Github {
     }
 
     public void checkTranslationUpdates(CorePlugin corePlugin){
-        String request = NetworkUtil.requestHttps(corePlugin.getGithubApiURL() + "/contents/translations");
+        String request = NetworkUtil.requestHttps(corePlugin.getGithubApiURL() + "/contents/translations"+githubId);
 
         if(request != null) {
             JsonArray updates = new JsonParser().parse(request).getAsJsonArray();
@@ -35,11 +37,12 @@ public class Github {
                 JsonObject update = updates.get(i).getAsJsonObject();
 
                 new FileUpdateRepository.FileUpdate(
-                        corePlugin,
+                        corePlugin.getName(),
                         update.get("name").getAsString(),
                         update.get("download_url").getAsString(),
                         update.get("sha").getAsString(),
-                        update.get("size").getAsInt()
+                        update.get("size").getAsInt(),
+                        corePlugin.getTranslationPath()
                 );
             }
 

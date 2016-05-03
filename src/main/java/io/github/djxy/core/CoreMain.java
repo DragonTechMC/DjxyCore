@@ -18,9 +18,11 @@ import io.github.djxy.core.network.updates.PluginsUpdate;
 import io.github.djxy.core.network.updates.TranslationsUpdate;
 import io.github.djxy.core.repositories.FileUpdateRepository;
 import io.github.djxy.core.repositories.PlayerRepository;
+import io.github.djxy.core.repositories.PluginUpdateRepository;
 import io.github.djxy.core.translation.Translator;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.DefaultConfig;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameConstructionEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
@@ -29,21 +31,20 @@ import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Samuel on 2016-04-23.
  */
-@Plugin(id = "djxycore", name = "Djxy Core", version = "1.0")
+@Plugin(id = "djxycore", name = "DjxyCore", version = "v1.0")
 public class CoreMain implements CorePlugin {
 
     private static CoreMain instance;
@@ -71,23 +72,8 @@ public class CoreMain implements CorePlugin {
     }
 
     @Override
-    public String getId() {
-        return "djxycore";
-    }
-
-    @Override
-    public String getName() {
-        return "DjxyCore";
-    }
-
-    @Override
     public String getGithubApiURL() {
         return "https://api.github.com/repos/djxy/DjxyCore";
-    }
-
-    @Override
-    public String getVersion() {
-        return "1.0";
     }
 
     @Override
@@ -164,6 +150,8 @@ public class CoreMain implements CorePlugin {
         Sponge.getCommandManager().register(this, new Command(createCommandUpdate()), "update");
 
         new TranslationsUpdate(false).check();
+        new PluginsUpdate(false).check();
+        downloadTranslations();
 
         corePlugins.forEach(io.github.djxy.core.CorePlugin::loadTranslations);
 
@@ -176,7 +164,6 @@ public class CoreMain implements CorePlugin {
 
     public void setIntervalUpdate(int intervalUpdate) {
         this.intervalUpdate = intervalUpdate;
-
         startUpdateInterval();
     }
 
@@ -193,18 +180,79 @@ public class CoreMain implements CorePlugin {
     @Listener
     public void onJoin(ClientConnectionEvent.Join event){
         PlayerRepository.getInstance().setPlayerData(event.getTargetEntity().getUniqueId(), "name", event.getTargetEntity().getName());
+        displayFileUpdates(event.getTargetEntity());
+        displayPluginUpdates(event.getTargetEntity());
+        System.out.println();
+    }
+
+    public void displayFileUpdates(Player player){
+        FileUpdateRepository fur = FileUpdateRepository.getInstance();
+        PlayerRepository pr = PlayerRepository.getInstance();
+
+        if(fur.hasUpdate() && pr.getPlayerBoolean(player.getUniqueId(), PlayerRepository.RECEIVE_NOTIFICATION_FILES, true)){
+            player.sendMessage(translator.translate(player, "fileUpdateHeader", null));
+            for(String plugin : fur.getPlugins()){
+                Collection<FileUpdateRepository.FileUpdate> fileUpdates = fur.getFileUpdates(plugin);
+
+                if(!fileUpdates.isEmpty()) {
+                    HashMap<String, Object> values = new HashMap<>();
+
+                    values.put("plugin", plugin);
+                    values.put("nbFile", fileUpdates.size());
+                    values.put("clickDownload", TextActions.executeCallback(e -> {
+                        int fileToDownload = fileUpdates.size();
+
+                        for (FileUpdateRepository.FileUpdate fileUpdate : fileUpdates) {
+                            if(fileUpdate.canDownload()) {
+                                fileToDownload--;
+                                fileUpdate.download();
+                            }
+                        }
+
+                        if(fileToDownload != fileUpdates.size())
+                            player.sendMessage(translator.translate(player, "fileUpdateDownloadFinished", values));
+                        else
+                            player.sendMessage(translator.translate(player, "fileUpdateDownloadNoFile", values));
+                    }));
+
+                    player.sendMessage(translator.translate(player, "fileUpdateRow", values));
+                }
+            }
+        }
+    }
+
+    public void displayPluginUpdates(Player player){
+        PluginUpdateRepository pur = PluginUpdateRepository.getInstance();
+        PlayerRepository pr = PlayerRepository.getInstance();
+
+        if(pur.hasUpdate() && pr.getPlayerBoolean(player.getUniqueId(), PlayerRepository.RECEIVE_NOTIFICATION_PLUGINS, true)){
+            Collection<PluginUpdateRepository.PluginUpdate> pluginUpdates = pur.getPluginUpdates();
+            player.sendMessage(translator.translate(player, "pluginUpdateHeader", null));
+
+            for(PluginUpdateRepository.PluginUpdate pluginUpdate : pluginUpdates) {
+                HashMap<String, Object> values = new HashMap<>();
+
+                values.put("plugin", pluginUpdate.getName());
+                values.put("version", pluginUpdate.getVersion());
+                values.put("clickHere", TextActions.openUrl(pluginUpdate.getUrl()));
+
+                player.sendMessage(translator.translate(player, "pluginUpdateRow", values));
+            }
+        }
     }
 
     public Node createCommandUpdate(){
         return new ChoiceNode("")
                 .addNode(new ChoiceNode("plugins")
+                        .setExecutor(new PluginUpdateExecutor())
                         .addNode(new ChoiceNode("set")
                                 .addNode(new BooleanNode("receiveNotification", "value")
                                         .setExecutor(new PlayerSetReceiveNotification.Plugins()))))
-                .addNode(new ChoiceNode("translations")
+                .addNode(new ChoiceNode("files")
+                        .setExecutor(new FileUpdateExecutor())
                         .addNode(new ChoiceNode("set")
                                 .addNode(new BooleanNode("receiveNotification", "value")
-                                        .setExecutor(new PlayerSetReceiveNotification.Translations()))));
+                                        .setExecutor(new PlayerSetReceiveNotification.Files()))));
     }
 
     public Node createCommandLanguage(){
@@ -227,9 +275,15 @@ public class CoreMain implements CorePlugin {
     }
 
     private void downloadTranslations(){
-        for(String plugin : FileUpdateRepository.getInstance().getPlugins())
-            for(FileUpdateRepository.FileUpdate fileUpdate : FileUpdateRepository.getInstance().getFileUpdates(plugin))
-                fileUpdate.download();
+        for(CorePlugin corePlugin : corePlugins) {
+            if (corePlugin.getTranslationPath() != null) {
+                File path = corePlugin.getTranslationPath().toFile();
+
+                if(path.listFiles().length == 0)
+                    for (FileUpdateRepository.FileUpdate fileUpdate : FileUpdateRepository.getInstance().getFileUpdates(corePlugin.getName()))
+                        fileUpdate.download();
+            }
+        }
     }
 
     private void startUpdateInterval(){
