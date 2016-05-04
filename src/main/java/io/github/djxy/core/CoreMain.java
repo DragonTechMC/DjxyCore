@@ -107,17 +107,19 @@ public class CoreMain implements CorePlugin {
 
     @Override
     public FileManager getFileManager(String name, Class<? extends FileManager>... types) {
+        name = name.toLowerCase();
+
         for(Class<? extends FileManager> clazz : types){
             if(clazz == TranslationsFile.class) {
                 for (FileManager translationsFile : translationsFiles)
-                    if (translationsFile.getName().equals(name))
+                    if (translationsFile.getName().toLowerCase().equals(name))
                         return translationsFile;
             }
-            else if(clazz == PlayerRepositoryFile.class && playerRepositoryFile.getName().equals(name))
+            else if(clazz == PlayerRepositoryFile.class && playerRepositoryFile.getName().toLowerCase().equals(name))
                 return playerRepositoryFile;
-            else if(clazz == CoreConfigFile.class && configFile.getName().equals(name))
+            else if(clazz == CoreConfigFile.class && configFile.getName().toLowerCase().equals(name))
                 return configFile;
-            else if(clazz == FileUpdateRepositoryFile.class && fileUpdateRepositoryFile.getName().equals(name))
+            else if(clazz == FileUpdateRepositoryFile.class && fileUpdateRepositoryFile.getName().toLowerCase().equals(name))
                 return fileUpdateRepositoryFile;
         }
 
@@ -182,7 +184,6 @@ public class CoreMain implements CorePlugin {
         PlayerRepository.getInstance().setPlayerData(event.getTargetEntity().getUniqueId(), "name", event.getTargetEntity().getName());
         displayFileUpdates(event.getTargetEntity());
         displayPluginUpdates(event.getTargetEntity());
-        System.out.println();
     }
 
     public void displayFileUpdates(Player player){
