@@ -20,6 +20,7 @@ abstract public class FileManager {
     private final String name;
     private FileFormat format = FileFormat.YAML;
     private FileFormat lastFormat = FileFormat.YAML;
+    private boolean loadingFailed = false;
 
     abstract protected void save(ConfigurationNode root);
     abstract protected void load(ConfigurationNode root);
@@ -42,36 +43,46 @@ abstract public class FileManager {
     }
 
     public void load() throws Exception {
-        if(isFileExist(FileFormat.HOCON))
-            load(HoconConfigurationLoader.builder().setDefaultOptions(ConfigurationOptions.defaults()).setFile(getFile(format = (lastFormat = FileFormat.HOCON))).build().load());
-        else if(isFileExist(FileFormat.JSON))
-            load(GsonConfigurationLoader.builder().setDefaultOptions(ConfigurationOptions.defaults()).setFile(getFile(format = (lastFormat = FileFormat.JSON))).build().load());
-        else if(isFileExist(FileFormat.YAML))
-            load(YAMLConfigurationLoader.builder().setDefaultOptions(ConfigurationOptions.defaults()).setFile(getFile(format = (lastFormat = FileFormat.YAML))).build().load());
+        try {
+            if(isFileExist(FileFormat.HOCON))
+                load(HoconConfigurationLoader.builder().setDefaultOptions(ConfigurationOptions.defaults()).setFile(getFile(format = (lastFormat = FileFormat.HOCON))).build().load());
+            else if(isFileExist(FileFormat.JSON))
+                load(GsonConfigurationLoader.builder().setDefaultOptions(ConfigurationOptions.defaults()).setFile(getFile(format = (lastFormat = FileFormat.JSON))).build().load());
+            else if(isFileExist(FileFormat.YAML))
+                load(YAMLConfigurationLoader.builder().setDefaultOptions(ConfigurationOptions.defaults()).setFile(getFile(format = (lastFormat = FileFormat.YAML))).build().load());
+
+            loadingFailed = false;
+        } catch (Exception e){
+            loadingFailed = true;
+            throw e;
+        }
     }
 
     public void save() throws Exception {
-        ConfigurationLoader loader = null;
-        ConfigurationNode root;
+        if(!loadingFailed) {
+            ConfigurationLoader loader = null;
+            ConfigurationNode root;
 
-        if(lastFormat != format){
-            getFile(lastFormat).delete();
-            getFile(format).createNewFile();
+            if (lastFormat != format) {
+                getFile(lastFormat).delete();
+                getFile(format).createNewFile();
+            }
+            switch (format) {
+                case HOCON:
+                    loader = HoconConfigurationLoader.builder().setDefaultOptions(ConfigurationOptions.defaults()).setFile(getFile(FileFormat.HOCON)).build();
+                    break;
+                case JSON:
+                    loader = GsonConfigurationLoader.builder().setDefaultOptions(ConfigurationOptions.defaults()).setFile(getFile(FileFormat.JSON)).build();
+                    break;
+                case YAML:
+                    loader = YAMLConfigurationLoader.builder().setIndent(4).setFlowStyle(DumperOptions.FlowStyle.BLOCK).setDefaultOptions(ConfigurationOptions.defaults()).setFile(getFile(FileFormat.YAML)).build();
+                    break;
+            }
+
+            root = loader.createEmptyNode();
+            save(root);
+            loader.save(root);
         }
-
-        switch (format){
-            case HOCON: loader = HoconConfigurationLoader.builder().setDefaultOptions(ConfigurationOptions.defaults()).setFile(getFile(FileFormat.HOCON)).build();
-                break;
-            case JSON:  loader = GsonConfigurationLoader.builder().setDefaultOptions(ConfigurationOptions.defaults()).setFile(getFile(FileFormat.JSON)).build();
-                break;
-            case YAML:  loader = YAMLConfigurationLoader.builder().setIndent(4).setFlowStyle(DumperOptions.FlowStyle.BLOCK).setDefaultOptions(ConfigurationOptions.defaults()).setFile(getFile(FileFormat.YAML)).build();
-                break;
-        }
-
-        root = loader.createEmptyNode();
-
-        save(root);
-        loader.save(root);
     }
 
     private File getFile(FileFormat format){
