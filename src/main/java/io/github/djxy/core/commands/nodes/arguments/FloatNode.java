@@ -20,7 +20,7 @@ public class FloatNode extends ArgumentNode {
     @Override
     public Object getValue(String arg) {
         try{
-            return Float.parseFloat(arg);
+            return Float.parseFloat(arg.replace(",", "."));
         }catch (Exception e){
             return null;
         }

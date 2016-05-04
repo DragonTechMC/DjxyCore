@@ -22,7 +22,13 @@ public class WorldNode extends ArgumentNode {
 
     @Override
     public Object getValue(String arg) {
-        return Sponge.getServer().getWorld(arg).isPresent()?Sponge.getServer().getWorld(arg).get():null;
+        arg = arg.toLowerCase();
+
+        for(World world : Sponge.getServer().getWorlds())
+            if(world.getName().toLowerCase().equals(arg))
+                return world;
+
+        return null;
     }
 
     @Override

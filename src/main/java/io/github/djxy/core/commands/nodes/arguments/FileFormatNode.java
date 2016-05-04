@@ -22,7 +22,7 @@ public class FileFormatNode extends ArgumentNode {
     @Override
     public Object getValue(String arg) {
         try{
-            return FileFormat.valueOf(arg);
+            return FileFormat.valueOf(arg.toUpperCase());
         }catch (Exception e){
             return null;
         }

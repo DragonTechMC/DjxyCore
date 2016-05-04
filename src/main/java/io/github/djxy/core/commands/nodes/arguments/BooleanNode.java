@@ -31,6 +31,8 @@ public class BooleanNode extends ArgumentNode {
 
     @Override
     public Object getValue(String argument) {
+        argument = argument.toLowerCase();
+
         if(nodesTrue.contains(argument))
             return true;
         if(nodesFalse.contains(argument))

@@ -21,7 +21,7 @@ public class DoubleNode extends ArgumentNode {
     @Override
     public Object getValue(String arg) {
         try{
-            return Double.parseDouble(arg);
+            return Double.parseDouble(arg.replace(",", "."));
         }catch (Exception e){
             return null;
         }

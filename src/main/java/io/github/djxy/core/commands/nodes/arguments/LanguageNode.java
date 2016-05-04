@@ -21,7 +21,13 @@ public class LanguageNode extends ArgumentNode {
 
     @Override
     public Object getValue(String arg) {
-        return TranslationService.getInstance().containLanguage(arg)?arg:null;
+        arg = arg.toLowerCase();
+
+        for(String language : TranslationService.getInstance().getLanguages())
+            if(language.toLowerCase().equals(arg))
+                return language;
+
+        return null;
     }
 
     @Override
