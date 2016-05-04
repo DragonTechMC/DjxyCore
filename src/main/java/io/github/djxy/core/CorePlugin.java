@@ -26,6 +26,12 @@ public interface CorePlugin {
 
     public List<FileManager> getFileManagers(Class<? extends FileManager>... type);
 
+    /**
+     * Should check like this file name: fileManager.getName().equalsIgnoreCase(name) or fileManager.getName().toLowerCase().equals(name.toLowerCase())
+     * @param name
+     * @param type
+     * @return
+     */
     public FileManager getFileManager(String name, Class<? extends FileManager>... type);
 
     default public String getId() {
