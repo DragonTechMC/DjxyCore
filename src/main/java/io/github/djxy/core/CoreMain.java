@@ -67,7 +67,7 @@ public class CoreMain implements CorePlugin {
     private int intervalUpdate = 1;
     private Task updateTask;
 
-    public CopyOnWriteArrayList<CorePlugin> getCorePlugins() {
+    public Collection<CorePlugin> getCorePlugins() {
         return (CopyOnWriteArrayList<CorePlugin>) corePlugins.clone();
     }
 
@@ -191,27 +191,28 @@ public class CoreMain implements CorePlugin {
 
         if(fur.hasUpdate() && pr.getPlayerBoolean(player.getUniqueId(), PlayerRepository.RECEIVE_NOTIFICATION_FILES, true)){
             player.sendMessage(translator.translate(player, "fileUpdateHeader", null));
-            for(String plugin : fur.getPlugins()){
-                Collection<FileUpdateRepository.FileUpdate> fileUpdates = fur.getFileUpdates(plugin);
+            for(CorePlugin corePlugin : corePlugins){
+                Collection<FileUpdateRepository.FileUpdate> fileUpdates = fur.getFileUpdates(corePlugin.getName());
 
                 if(!fileUpdates.isEmpty()) {
                     HashMap<String, Object> values = new HashMap<>();
 
-                    values.put("plugin", plugin);
+                    values.put("plugin", corePlugin.getName());
                     values.put("nbFile", fileUpdates.size());
                     values.put("clickDownload", TextActions.executeCallback(e -> {
                         int fileToDownload = fileUpdates.size();
 
                         for (FileUpdateRepository.FileUpdate fileUpdate : fileUpdates) {
-                            if(fileUpdate.canDownload()) {
+                            if (fileUpdate.canDownload()) {
                                 fileToDownload--;
                                 fileUpdate.download();
                             }
                         }
 
-                        if(fileToDownload != fileUpdates.size())
+                        if (fileToDownload != fileUpdates.size()) {
                             player.sendMessage(translator.translate(player, "fileUpdateDownloadFinished", values));
-                        else
+                            corePlugin.loadTranslations();
+                        } else
                             player.sendMessage(translator.translate(player, "fileUpdateDownloadNoFile", values));
                     }));
 

@@ -1,6 +1,7 @@
 package io.github.djxy.core.commands.executors;
 
 import io.github.djxy.core.CoreMain;
+import io.github.djxy.core.CorePlugin;
 import io.github.djxy.core.Permissions;
 import io.github.djxy.core.commands.CommandExecutor;
 import io.github.djxy.core.repositories.FileUpdateRepository;
@@ -27,13 +28,13 @@ public class FileUpdateExecutor extends CommandExecutor {
 
         if(fur.hasUpdate()){
             source.sendMessage(CoreMain.getTranslatorInstance().translate(source, "fileUpdateHeader", null));
-            for(String plugin : fur.getPlugins()){
-                Collection<FileUpdateRepository.FileUpdate> fileUpdates = fur.getFileUpdates(plugin);
+            for(CorePlugin corePlugin : CoreMain.getInstance().getCorePlugins()){
+                Collection<FileUpdateRepository.FileUpdate> fileUpdates = fur.getFileUpdates(corePlugin.getName());
 
                 if(!fileUpdates.isEmpty()) {
                     HashMap<String, Object> map = new HashMap<>();
 
-                    map.put("plugin", plugin);
+                    map.put("plugin", corePlugin.getName());
                     map.put("nbFile", fileUpdates.size());
                     map.put("clickDownload", TextActions.executeCallback(e -> {
                         int fileToDownload = fileUpdates.size();
@@ -45,8 +46,10 @@ public class FileUpdateExecutor extends CommandExecutor {
                             }
                         }
 
-                        if (fileToDownload != fileUpdates.size())
+                        if (fileToDownload != fileUpdates.size()) {
                             source.sendMessage(CoreMain.getTranslatorInstance().translate(source, "fileUpdateDownloadFinished", map));
+                            corePlugin.loadTranslations();
+                        }
                         else
                             source.sendMessage(CoreMain.getTranslatorInstance().translate(source, "fileUpdateDownloadNoFile", map));
                     }));
