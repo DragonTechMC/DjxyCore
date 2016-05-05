@@ -143,8 +143,6 @@ public class CoreMain implements CorePlugin {
                 fileUpdateRepositoryFile = new FileUpdateRepositoryFile(path.getParent())
         );
 
-        loadCorePlugins();
-
         Sponge.getCommandManager().register(this, new Command(createCommandLanguage()), "language");
         Sponge.getCommandManager().register(this, new Command(createCommandTranslation()), "translation");
         Sponge.getCommandManager().register(this, new Command(createCommandUpdate()), "update");
