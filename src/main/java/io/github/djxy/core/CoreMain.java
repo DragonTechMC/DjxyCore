@@ -137,8 +137,6 @@ public class CoreMain implements CorePlugin {
 
     @Listener
     public void onGamePreInitializationEvent(GamePreInitializationEvent event) {
-        initMetrics();
-
         CoreUtil.loadFileManagers(
                 configFile = new CoreConfigFile(path.getParent(), this),
                 playerRepositoryFile = new PlayerRepositoryFile(path.getParent()),
@@ -158,6 +156,7 @@ public class CoreMain implements CorePlugin {
         corePlugins.forEach(io.github.djxy.core.CorePlugin::loadTranslations);
 
         startUpdateInterval();
+        initMetrics();
     }
 
     public int getIntervalUpdate() {
@@ -313,8 +312,8 @@ public class CoreMain implements CorePlugin {
 
     private void initMetrics(){
         try {
-            Metrics metrics = new Metrics(Sponge.getGame(), this);
-            metrics.start();
+            for(CorePlugin plugin : corePlugins)
+                new Metrics(Sponge.getGame(), plugin).start();
         } catch (IOException e) {
             e.printStackTrace();
         }
