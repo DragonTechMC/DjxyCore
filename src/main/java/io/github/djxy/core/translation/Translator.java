@@ -85,7 +85,7 @@ public class Translator {
                 }
                 else {
                     Object value = values.containsKey(var)?values.get(var):"{"+var+"}";
-                    text = value instanceof Text?text.concat((Text) value):text.concat(transformVariable(value.toString()));
+                    text = value instanceof Text?text.concat((Text) value).concat(Text.of(TextColors.RESET, TextStyles.RESET)):text.concat(transformVariable(value.toString()));
                 }
 
                 startIndex = i+1;
