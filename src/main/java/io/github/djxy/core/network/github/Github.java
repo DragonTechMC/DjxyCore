@@ -13,10 +13,8 @@ import io.github.djxy.core.repositories.PluginUpdateRepository;
  */
 public class Github {
 
-    private static final String githubId = "?client_id=50913361a260f21a0bb7&client_secret=2db25b6684c5d0c9326f26e84f5d2847bdbc9611";
-
     public void checkLatestRelease(CorePlugin corePlugin){
-        String request = NetworkUtil.requestHttps(corePlugin.getGithubApiURL() + "/releases/latest"+githubId);
+        String request = NetworkUtil.requestHttps(corePlugin.getGithubApiURL() + "/releases/latest");
 
         if(request != null) {
             JsonObject release = new JsonParser().parse(request).getAsJsonObject();
@@ -28,7 +26,7 @@ public class Github {
     }
 
     public void checkTranslationUpdates(CorePlugin corePlugin){
-        String request = NetworkUtil.requestHttps(corePlugin.getGithubApiURL() + "/contents/translations"+githubId);
+        String request = NetworkUtil.requestHttps(corePlugin.getGithubApiURL() + "/contents/translations");
 
         if(request != null) {
             JsonArray updates = new JsonParser().parse(request).getAsJsonArray();
