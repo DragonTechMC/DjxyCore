@@ -12,6 +12,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class TranslationService {
 
+    //Ajouter systeme pour avoir langue de meme type. Genre s'il y a pas fr_FR mais fr_CA est la. Prendre la traduction de fr_CA'
+
     public static String DEFAULT_LANGUAGE = "en_US";
     private static final TranslationService instance = new TranslationService();
 
