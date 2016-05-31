@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by Samuel on 2016-04-23.
  */
-@Plugin(id = "djxycore", name = "DjxyCore", version = "v1.0.1")
+@Plugin(id = "djxycore", name = "DjxyCore", version = "v1.0.2")
 public class CoreMain implements CorePlugin {
 
     private static CoreMain instance;
