@@ -187,7 +187,7 @@ public class CoreMain implements CorePlugin {
         FileUpdateRepository fur = FileUpdateRepository.getInstance();
         PlayerRepository pr = PlayerRepository.getInstance();
 
-        if(fur.hasUpdate() && pr.getPlayerBoolean(player.getUniqueId(), PlayerRepository.RECEIVE_NOTIFICATION_FILES, true)){
+        if(player.hasPermission(Permissions.UPDATE) && fur.hasUpdate() && pr.getPlayerBoolean(player.getUniqueId(), PlayerRepository.RECEIVE_NOTIFICATION_FILES, true)){
             player.sendMessage(translator.translate(player, "fileUpdateHeader", null));
             for(CorePlugin corePlugin : corePlugins){
                 Collection<FileUpdateRepository.FileUpdate> fileUpdates = fur.getFileUpdates(corePlugin.getName());
@@ -224,7 +224,7 @@ public class CoreMain implements CorePlugin {
         PluginUpdateRepository pur = PluginUpdateRepository.getInstance();
         PlayerRepository pr = PlayerRepository.getInstance();
 
-        if(pur.hasUpdate() && pr.getPlayerBoolean(player.getUniqueId(), PlayerRepository.RECEIVE_NOTIFICATION_PLUGINS, true)){
+        if(player.hasPermission(Permissions.UPDATE) && pur.hasUpdate() && pr.getPlayerBoolean(player.getUniqueId(), PlayerRepository.RECEIVE_NOTIFICATION_PLUGINS, true)){
             Collection<PluginUpdateRepository.PluginUpdate> pluginUpdates = pur.getPluginUpdates();
             player.sendMessage(translator.translate(player, "pluginUpdateHeader", null));
 
